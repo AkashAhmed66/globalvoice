@@ -1,0 +1,58 @@
+{
+  "menu": [
+    {
+      "url": "dashboard",
+      "name": "Dashboard",
+      "icon": "menu-icon tf-icons ri-dashboard-line",
+      "slug": "dashboard"
+    },
+    {
+      "icon": "menu-icon tf-icons ri-team-line",
+      "url": "users/user-group-list",
+      "name": "Group List",
+      "slug": "user-group-list"
+    },
+    {
+      "icon": "menu-icon tf-icons ri-user-3-line",
+      "url": "users/users-list",
+      "name": "User List",
+      "slug": "users-list"
+    },
+    {
+      "icon": "menu-icon tf-icons ri-file-list-3-line",
+      "url": "users/cdr-list",
+      "name": "CDR",
+      "slug": "cdr-list"
+    },
+    {
+      "icon": "menu-icon tf-icons ri-briefcase-2-line",
+      "url": "users/client-list",
+      "name": "Client",
+      "slug": "client-list"
+    },
+    {
+      "icon": "menu-icon tf-icons ri-numbers-line",
+      "url": "users/number-list",
+      "name": "Number",
+      "slug": "number-list"
+    },
+    {
+      "icon": "menu-icon tf-icons ri-wallet-3-line",
+      "url": "users/balance-list",
+      "name": "Balance",
+      "slug": "balance-list"
+    },
+    {
+      "icon": "menu-icon tf-icons ri-price-tag-3-line",
+      "url": "users/tarif-list",
+      "name": "Tarif",
+      "slug": "tarif-list"
+    },
+    {
+      "icon": "menu-icon tf-icons ri-exchange-dollar-line",
+      "url": "users/mnp-list",
+      "name": "MNP",
+      "slug": "mnp-list"
+    }
+  ]
+}

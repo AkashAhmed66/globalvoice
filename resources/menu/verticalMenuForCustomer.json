@@ -1,0 +1,101 @@
+{
+  "menu": [
+    {
+      "url": "dashboard",
+      "name": "Dashboard",
+      "icon": "menu-icon tf-icons ri-home-smile-line",
+      "slug": "dashboard"
+    },
+
+    {
+      "name": "Sms Config",
+      "icon": "menu-icon tf-icons ri-home-smile-line",
+      "slug": "sms-config",
+      "submenu": [
+        {
+          "url": "/sms-config/rate-list",
+          "name": "Rate List",
+          "slug": "rate-list"
+        },
+        {
+          "url": "/sms-config/sender-id-list",
+          "name": "Sender Id List",
+          "slug": "sender-id-list"
+        }
+      ]
+    },
+
+    {
+      "name": "Transactions",
+      "icon": "menu-icon tf-icons ri-home-smile-line",
+      "slug": "transactions",
+      "submenu": [
+        {
+          "url": "transactions/uwallet-list",
+          "name": "User Wallet",
+          "slug": "uwallet-list"
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "icon": "menu-icon tf-icons ri-home-smile-line",
+      "slug": "app-reports",
+      "submenu": [
+        {
+          "url": "reports/last-2days-failed-sms-list",
+          "name": "Two Days Failed Message",
+          "slug": "last-2days-failed-sms-list"
+        },
+        {
+          "url": "reports/failed-archived-sms",
+          "name": "Failed Message Archived",
+          "slug": "failed-archived-sms"
+        },
+        {
+          "url": "reports/last-2days-sms-list",
+          "name": "Two Days Report Details",
+          "slug": "last-2days-sms-list"
+        },
+        {
+          "url": "reports/archived-sms",
+          "name": "Report Details Archived",
+          "slug": "archived-sms"
+        },
+        {
+          "url": "reports/day-wise-log",
+          "name": "Day Wise Log",
+          "slug": "day-wise-log"
+        },
+        {
+          "url": "reports/total-sms-log",
+          "name": "Total Message Sent",
+          "slug": "total-sms-log"
+        },
+        {
+          "url": "reports/btrc-report",
+          "name": "Operator Report",
+          "slug": "btrc-report"
+        },
+        {
+          "url": "reports/inbox-report",
+          "name": "Inbox",
+          "slug": "inbox-report"
+        }
+      ]
+    },
+
+    {
+      "name": "Developer",
+      "icon": "menu-icon tf-icons ri-input-method-line",
+      "slug": "developer",
+      "submenu": [
+        {
+          "url": "/developer/api-info",
+          "name": "API Information",
+          "slug": "api-info"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+ try {
+      $totalMessage = $this->countSms($request->message)->count;
+      $recipientList = explode(',', $request->msisdn);
+      $totalRecipient = count($recipientList);
+
+      //$requestIp = \Request::getClientIp() ?? "";
+      $orderId = $user->id . $this->microseconds();
+
+      //PREPARE PAYLOAD FOR SEND MESSAGE TABLE
+      $payload = [
+        "user_id" => $user->id,
+        "recipient" => $request->msisdn,
+        "senderid" => $request->cli,
+        "message" => $request->message,
+        "client_transaction_id" => $request->clienttransid,
+        "orderid" => $orderId,
+        "rn_code" => strrev($request->rn_code),
+        "type" => $request->type ?? '',
+        "long_sms" => $request->message ?? '',
+        "is_long_sms" => $request->isLongSMS ?? false,
+        "is_flash" => $request->isFlash ?? false,
+        "flash" => $request->flash ?? '',
+        "date" => date('Y-m-d H:i:s'),
+        "source" => 'IPTSP',
+        "sms_count" => $totalMessage,
+        "IP" => $requestIp ?? "",
+        "sms_type" => 'sendSms',
+        "file" => '',
+        "is_unicode" => $request->isUnicode ?? false,
+        "unicode" => $request->unicode ?? '',
+        "data_coding" => $request->dataCoding ?? '',
+        "status" => 'Queue',
+        "total_recipient" => $totalRecipient,
+        "is_promotional" => 1,
+        "template_type" => $request->template_type ?? '1',
+      ];
+
+      //SAVE TO SEND MESSAGE TABLE
+      $sendMessage = Message::create($payload);
+
+      $priority = $this->getPriority($recipientList);
+      //PREPARE OUTBOX PAYLOAD
+      $outboxPayloadArray = [];
+      $messageIDs = [];
+      foreach ($recipientList as $key => $destmn) {
+        $outboxPayload = [
+          "srcmn" => $request->cli,
+          "mask" => $request->cli,
+          "destmn" => trim($destmn),
+          "message" => $request->message,
+          "country_code" => null,
+          "operator_prefix" => strrev($request->rn_code),
+          "status" => 'Queue',
+          "created_at" => date('Y-m-d H:i:s'),
+          "sent_time" => null,
+          "ton" => 5,
+          "npi" => 1,
+          "message_type" => 'text',
+          "is_unicode" => $request->isUnicode ?? false,
+          "smscount" => $totalMessage,
+          "esm_class" => '',
+          "data_coding" => $request->dataCoding ?? '',
+          "reference_id" => $sendMessage->id,
+          "last_updated" => date('Y-m-d H:i:s'),
+          "schedule_time" => null,
+          "retry_count" => 0,
+          "user_id" => $user->id,
+          "remarks" => '',
+          "uuid" => hex2bin(str_replace('-', '', Str::uuid()->toString())),
+          "priority" => $priority,
+          "blocked_status" => null,
+          "created_at" => date('Y-m-d H:i:s'),
+          "updated_at" => date('Y-m-d H:i:s'),
+          "error_code" => null,
+          "error_message" => null,
+          "sms_cost" => doubleval(@$user->smsRate->nonmasking_rate),
+          "sms_uniq_id" => "METRONET " . date('Ymdhis') . '-' . trim($destmn) . '-' . '0000000001',
+          //module division by 999999999
+        ];
+
+        $outboxPayloadArray[] = $outboxPayload;
+
+        for ($i = 1; $i <= $totalMessage; $i++) {
+          $messageIDs[trim($destmn)][] = "METRONET " . date('Ymdhis') . '-' . trim($destmn) . '-' . str_pad(
+              $i,
+              10,
+              '0',
+              STR_PAD_LEFT
+            );
+        }
+      }
+
+      //SAVE OUTBOX TABLE
+      if (Outbox::insert($outboxPayloadArray)) {
+        $this->sendMessageToSocket($payload, $sendMessage->id);
+      }
+      DB::commit();

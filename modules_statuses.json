@@ -1,0 +1,14 @@
+{
+    "Dashboard": true,
+    "Menus": true,
+    "Users": true,
+    "Smsconfig": true,
+    "Transactions": true,
+    "Phonebook": true,
+    "Messages": true,
+    "Campain": true,
+    "Reports": true,
+    "Developers": true,
+    "Campaign": true,
+    "API": true
+}

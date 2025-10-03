@@ -1,0 +1,42 @@
+curl --header "Content-Type: application/json"\
+--request POST\
+--data '{
+"username": "TestAGG" ,
+"password": "123456" ,
+"msisdn": "8801720102673, 8801720102674" ,
+"cli": "22222" ,
+"message": "Dear Subscriber, please recharge tk.100 to get a bonus of tk.10" ,
+"clienttransid": "04ca3a2e-0c39-41ab-b7df-d90ced96c00d" ,
+"rn_code": "71" ,
+"type": "T" ,
+"longSMS": "" ,
+"isLongSMS": false ,
+"dataCoding": "0" ,
+"isUnicode": false ,
+"unicode": "" ,
+"isFlash": false ,
+"flash": ""
+}'\
+http://123.0.31.66:8000/api/v2/trans/sendsms
+
+
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{
+"username": "TestAGG" ,
+"password": "123456" ,
+"msisdn": "8801720102673,8801720102674" ,
+"cli": "22222" ,
+"message": "Dear Subscriber, please recharge tk.100 to get a bonus of tk.10" ,
+"clienttransid": "04ca3a2e-0c39-41ab-b7df-d90ced96c00d" ,
+"rn_code": "71" ,
+"type": "T" ,
+"longSMS": "" ,
+"isLongSMS": false ,
+"dataCoding": "0" ,
+"isUnicode": false ,
+"unicode": "" ,
+"isFlash": false ,
+"flash": ""
+    }' \
+ http://123.0.31.66:8000/api/v2/trans/sendsms
