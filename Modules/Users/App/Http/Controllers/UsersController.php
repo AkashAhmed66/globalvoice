@@ -67,22 +67,6 @@ class UsersController extends Controller
 
   public function loginAs($id)
   {
-    //get the id from the post
-    //$id = request('user_id');
-
-    //if session exists remove it and return login to original user
-    // changed to log in into customer account 
-
-    // if (session()->has('hasClonedUser')) {
-    //   auth()->loginUsingId(session()->get('hasClonedUser'), true);
-    //   session()->remove('hasClonedUser');
-    //   // dd(1);
-    //   return redirect()->route('users-list');
-    // }
-
-    //only run for developer, clone selected user and create a cloned session
-
-
     if(session()->has('hasClonedUser') && session()->get('hasClonedUser') == $id){
       if(session()->has('hasClonedUser')) session()->remove('hasClonedUser');
       if(session()->has('hasClonedAnotherUser')) session()->remove('hasClonedAnotherUser');
@@ -119,18 +103,6 @@ class UsersController extends Controller
   {
     $userInfo = $this->userRepository->create($request->except('sms_senderId', 'sms_mask'));
 
-    //update the senderId with user id
-    if ($request->sms_senderId) {
-      $senderId = $this->senderIdRepository->find($request->sms_senderId);
-      $senderId->user_id = $userInfo->id;
-      $senderId->save();
-    }
-
-    if ($request->sms_mask) {
-      $mask = $this->maskRepository->find($request->sms_mask);
-      $mask->user_id = $userInfo->id;
-      $mask->save();
-    }
 
     return response()->json(['status' => 'added', 'message' => 'User added successfully']);
   }

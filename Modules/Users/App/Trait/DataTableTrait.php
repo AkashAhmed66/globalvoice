@@ -41,7 +41,15 @@ trait DataTableTrait
       ],
       'cdr-list' => [
         "id" => "#",
-        'name' => "Name",
+        'name' => "Calldate",
+        'status' => "IN / OUT",
+        'contact_name' => "LOCAL / ISD",
+        'contact_no' => "Source",
+        'mail' => "Destination",
+        'district' => "OBD Route",
+        'district' => "Call Rate",
+        'district' => "Billsec",
+        'district' => "Deduction",
         'action' => 'Action'
       ],
       'client-list' => [

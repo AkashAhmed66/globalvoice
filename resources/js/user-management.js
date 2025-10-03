@@ -84,17 +84,11 @@ $(function() {
         return;
       }
 
+      $('#add-full-name').val(jsonData.full_name || jsonData.name);
       $('#add-name').val(jsonData.name);
-      $('#add-username').val(jsonData.username);
       $('#add-email').val(jsonData.email);
-      $('#add-sms-rate').val(jsonData.sms_rate_id).trigger('change');
-      $('#add-sms-senderId').val(jsonData.senderId).trigger('change');
-      $('#add-address').val(jsonData.address);
       $('#add-mobile').val(jsonData.mobile);
       $('#add-user-group').val(jsonData.user_group_id).trigger('change');
-      $('#add-tps').val(jsonData.tps);
-      $('#add-reve-api-key').val(jsonData.user_reve_api_key);
-      $('#add-reve-secret-key').val(jsonData.user_reve_secret_key);
     });
   });
 
@@ -104,17 +98,17 @@ $(function() {
   // User form validation
   const fv = FormValidation.formValidation(addNewUserForm1, {
     fields: {
+      full_name: {
+        validators: {
+          notEmpty: {
+            message: 'Please enter full name'
+          }
+        }
+      },
       name: {
         validators: {
           notEmpty: {
             message: 'Please enter name'
-          }
-        }
-      },
-      username: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter user name'
           }
         }
       },
@@ -124,8 +118,8 @@ $(function() {
             message: 'Please enter mobile'
           },
           regexp: {
-            regexp: /^[0-9]+$/,
-            message: 'The mobile number can only consist of numbers'
+            regexp: /^[0-9+\-\s()]+$/,
+            message: 'Please enter a valid mobile number'
           }
         }
       },
@@ -161,80 +155,13 @@ $(function() {
           }
         }
       },
-      confirm_password: {
-        validators: {
-          callback: {
-            message: 'Please confirm your password',
-            callback: function(input) {
-              if (!isEditMode) {
-                return input.value.trim().length > 0;
-              }
-              return true;
-            }
-          },
-          identical: {
-            compare: function() {
-              return addNewUserForm1.querySelector('[name="password"]').value;
-            },
-            message: 'The password and its confirm are not the same',
-            enabled: function() {
-              return !isEditMode;
-            }
-          }
-        }
-      },
-      address: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter address'
-          }
-        }
-      },
       user_group_id: {
         validators: {
           notEmpty: {
-            message: 'Please enter user type'
-          }
-        }
-      },
-      sms_rate_id: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter sms rate'
-          }
-        }
-      },
-      /*sms_senderId: {
-          validators: {
-              notEmpty: {
-                  message: 'Please select senderId'
-              }
-          }
-      },*/
-      tps: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter TPS'
-          },
-          numeric: {
-            message: 'The TPS must be a valid number'
+            message: 'Please select user group'
           }
         }
       }
-      /* user_reve_api_key: {
-             validators: {
-                 notEmpty: {
-                     message: 'Please enter api key'
-                 }
-             }
-         },
-       user_reve_secret_key: {
-             validators: {
-                 notEmpty: {
-                     message: 'Please enter secret key'
-                 }
-             }
-         }*/
     },
     plugins: {
       trigger: new FormValidation.plugins.Trigger(),
@@ -243,41 +170,13 @@ $(function() {
         eleValidClass: '',
         rowSelector: function(field, ele) {
           // field is the field name & ele is the field element
-          return '.mb-5';
+          return '.mb-4, .mb-5';
         }
       }),
       submitButton: new FormValidation.plugins.SubmitButton(),
       autoFocus: new FormValidation.plugins.AutoFocus()
     }
   }).on('core.form.valid', function() {
-
-    // Validate password and confirm password before submitting
-    const password = $('#add-password').val(); // Assuming the password field has id 'add-password'
-    const confirmPassword = $('#add-confirm-password').val(); // Assuming the confirm password field has id 'add-confirm-password'
-
-    if (password && !confirmPassword) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please enter confirm your password.',
-        icon: 'error',
-        customClass: {
-          confirmButton: 'btn btn-danger'
-        }
-      });
-      return; // Prevent form submission if confirm password is empty
-    }
-
-    if (password && confirmPassword && password !== confirmPassword) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Confirm passwords do not match.',
-        icon: 'error',
-        customClass: {
-          confirmButton: 'btn btn-danger'
-        }
-      });
-      return; // Prevent form submission if passwords do not match
-    }
 
     var url = isEditMode ? `${baseUrl}users/users-update/${userId}` : `${baseUrl}users/users-store`;
     var method = isEditMode ? 'PUT' : 'POST';
@@ -321,6 +220,14 @@ $(function() {
   // Clearing form data when offcanvas hidden
   offCanvasForm.on('hidden.bs.offcanvas', function() {
     fv.resetForm(true);
+    // Reset form fields to default values
+    $('#add-full-name').val('');
+    $('#add-name').val('');
+    $('#add-email').val('');
+    $('#add-mobile').val('');
+    $('#add-password').val('');
+    $('#add-user-group').val('').trigger('change');
+    
     isEditMode = false; // Reset the edit mode
     userId = null; // Clear the stored operator ID
   });

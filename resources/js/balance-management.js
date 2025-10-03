@@ -10,12 +10,12 @@ $(function() {
   });
 
   var isEditMode = false; // Track if it's an edit operation
-  var userId = null; // Store the current operator ID for edit
+  var balanceId = null; // Store the current balance ID for edit
 
   // Delete Record
   $(document).on('click', '.delete-record', function() {
     var button = $(this);
-    var user_id = button.data('id');
+    var balance_id = button.data('id');
 
     // sweetalert for confirmation of delete
     Swal.fire({
@@ -34,7 +34,7 @@ $(function() {
         // delete the data
         $.ajax({
           type: 'DELETE',
-          url: `${baseUrl}users/balance-delete/${user_id}`,
+          url: `${baseUrl}users/balance-delete/${balance_id}`,
           success: function(response) {
             window.location.href = `${baseUrl}users/balance-list`;
             dt_user.draw();
@@ -48,7 +48,7 @@ $(function() {
         Swal.fire({
           icon: 'success',
           title: 'Deleted!',
-          text: 'The user has been deleted!',
+          text: 'The balance record has been deleted!',
           customClass: {
             confirmButton: 'btn btn-success'
           }
@@ -56,7 +56,7 @@ $(function() {
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Cancelled',
-          text: 'The User is not deleted!',
+          text: 'The Balance record is not deleted!',
           icon: 'error',
           customClass: {
             confirmButton: 'btn btn-success'
@@ -68,13 +68,13 @@ $(function() {
 
   // Edit Record
   $(document).on('click', '.edit-record', function() {
-    var user_id = $(this).data('id');
+    var balance_id = $(this).data('id');
 
     isEditMode = true;
-    userId = user_id; // Store the operator ID
+    balanceId = balance_id; // Store the balance ID
 
     // Get data
-    $.get(`${baseUrl}users/balance/${user_id}/edit`, function(data) {
+    $.get(`${baseUrl}users/balance/${balance_id}/edit`, function(data) {
       // Check if the data is a string and needs to be parsed
       let jsonData;
       try {
@@ -84,157 +84,46 @@ $(function() {
         return;
       }
 
-      $('#add-name').val(jsonData.name);
-      $('#add-username').val(jsonData.username);
-      $('#add-email').val(jsonData.email);
-      $('#add-sms-rate').val(jsonData.sms_rate_id).trigger('change');
-      $('#add-sms-senderId').val(jsonData.senderId).trigger('change');
-      $('#add-address').val(jsonData.address);
-      $('#add-mobile').val(jsonData.mobile);
-      $('#add-user-group').val(jsonData.user_group_id).trigger('change');
-      $('#add-tps').val(jsonData.tps);
-      $('#add-reve-api-key').val(jsonData.user_reve_api_key);
-      $('#add-reve-secret-key').val(jsonData.user_reve_secret_key);
+      $(`input[name="to"][value="${jsonData.to}"]`).prop('checked', true);
+      $('#add-client').val(jsonData.client).trigger('change');
+      $('#add-amount').val(jsonData.amount);
     });
   });
 
-  // Validating form and updating user's data
-  const addNewUserForm1 = document.getElementById('addNewUserForm1');
+  // Validating form and updating balance data
+  const addNewBalanceForm = document.getElementById('addNewBalanceForm');
 
-  // User form validation
-  const fv = FormValidation.formValidation(addNewUserForm1, {
+  // Balance form validation
+  const fv = FormValidation.formValidation(addNewBalanceForm, {
     fields: {
-      name: {
+      to: {
         validators: {
           notEmpty: {
-            message: 'Please enter name'
+            message: 'Please select to option'
           }
         }
       },
-      username: {
+      client: {
         validators: {
           notEmpty: {
-            message: 'Please enter user name'
+            message: 'Please select client'
           }
         }
       },
-      mobile: {
+      amount: {
         validators: {
           notEmpty: {
-            message: 'Please enter mobile'
-          },
-          regexp: {
-            regexp: /^[0-9]+$/,
-            message: 'The mobile number can only consist of numbers'
-          }
-        }
-      },
-      email: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter email'
-          },
-          emailAddress: {
-            message: 'Please enter a valid email address'
-          }
-        }
-      },
-      password: {
-        validators: {
-          callback: {
-            message: 'Please enter password',
-            callback: function(input) {
-              // Only require password if not in edit mode (i.e., creating new)
-              if (!isEditMode) {
-                return input.value.trim().length > 0;
-              }
-              return true;
-            }
-          },
-          stringLength: {
-            min: 6,
-            message: 'Password must be at least 6 characters long',
-            enabled: function() {
-              // Only enforce length if not in edit mode
-              return !isEditMode;
-            }
-          }
-        }
-      },
-      confirm_password: {
-        validators: {
-          callback: {
-            message: 'Please confirm your password',
-            callback: function(input) {
-              if (!isEditMode) {
-                return input.value.trim().length > 0;
-              }
-              return true;
-            }
-          },
-          identical: {
-            compare: function() {
-              return addNewUserForm1.querySelector('[name="password"]').value;
-            },
-            message: 'The password and its confirm are not the same',
-            enabled: function() {
-              return !isEditMode;
-            }
-          }
-        }
-      },
-      address: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter address'
-          }
-        }
-      },
-      user_group_id: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter user type'
-          }
-        }
-      },
-      sms_rate_id: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter sms rate'
-          }
-        }
-      },
-      /*sms_senderId: {
-          validators: {
-              notEmpty: {
-                  message: 'Please select senderId'
-              }
-          }
-      },*/
-      tps: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter TPS'
+            message: 'Please enter amount'
           },
           numeric: {
-            message: 'The TPS must be a valid number'
+            message: 'Please enter a valid amount'
+          },
+          greaterThan: {
+            min: 0,
+            message: 'Amount must be greater than 0'
           }
         }
       }
-      /* user_reve_api_key: {
-             validators: {
-                 notEmpty: {
-                     message: 'Please enter api key'
-                 }
-             }
-         },
-       user_reve_secret_key: {
-             validators: {
-                 notEmpty: {
-                     message: 'Please enter secret key'
-                 }
-             }
-         }*/
     },
     plugins: {
       trigger: new FormValidation.plugins.Trigger(),
@@ -251,40 +140,12 @@ $(function() {
     }
   }).on('core.form.valid', function() {
 
-    // Validate password and confirm password before submitting
-    const password = $('#add-password').val(); // Assuming the password field has id 'add-password'
-    const confirmPassword = $('#add-confirm-password').val(); // Assuming the confirm password field has id 'add-confirm-password'
-
-    if (password && !confirmPassword) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Please enter confirm your password.',
-        icon: 'error',
-        customClass: {
-          confirmButton: 'btn btn-danger'
-        }
-      });
-      return; // Prevent form submission if confirm password is empty
-    }
-
-    if (password && confirmPassword && password !== confirmPassword) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Confirm passwords do not match.',
-        icon: 'error',
-        customClass: {
-          confirmButton: 'btn btn-danger'
-        }
-      });
-      return; // Prevent form submission if passwords do not match
-    }
-
-    var url = isEditMode ? `${baseUrl}users/balance-update/${userId}` : `${baseUrl}users/balance-store`;
+    var url = isEditMode ? `${baseUrl}users/balance-update/${balanceId}` : `${baseUrl}users/balance-store`;
     var method = isEditMode ? 'PUT' : 'POST';
 
-    // Adding or updating user when form successfully validates
+    // Adding or updating balance when form successfully validates
     $.ajax({
-      data: $('#addNewUserForm1').serialize(),
+      data: $('#addNewBalanceForm').serialize(),
       url: url,
       type: method,
       success: function(response) {
@@ -292,7 +153,7 @@ $(function() {
         Swal.fire({
           icon: 'success',
           title: `Successfully ${response.status}!`,
-          text: `User ${response.status} Successfully.`,
+          text: `Balance ${response.status} Successfully.`,
           customClass: {
             confirmButton: 'btn btn-success'
           }
@@ -301,7 +162,7 @@ $(function() {
           window.location.href = `${baseUrl}users/balance-list`;
         });
         isEditMode = false; // Reset the edit mode
-        userId = null; // Reset the operator ID
+        balanceId = null; // Reset the balance ID
       },
       error: function(err) {
         console.log(err.responseText); // This will give you more details about the error
@@ -321,8 +182,12 @@ $(function() {
   // Clearing form data when offcanvas hidden
   offCanvasForm.on('hidden.bs.offcanvas', function() {
     fv.resetForm(true);
+    // Reset form fields to default values
+    $('#to-client').prop('checked', true);
+    $('#add-client').val('').trigger('change');
+    $('#add-amount').val('');
     isEditMode = false; // Reset the edit mode
-    userId = null; // Clear the stored operator ID
+    balanceId = null; // Clear the stored balance ID
   });
 
 });

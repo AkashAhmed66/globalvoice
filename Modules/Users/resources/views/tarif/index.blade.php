@@ -56,7 +56,7 @@
       </table>
     </div>
 
-    @include('users::user.create')
+    @include('users::tarif.create')
   </div>
 @endsection
 

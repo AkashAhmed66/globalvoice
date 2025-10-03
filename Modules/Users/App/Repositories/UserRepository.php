@@ -72,38 +72,15 @@ class UserRepository implements UserRepositoryInterface
 
   public function create(array $data): User
   {
-    $unhashedPassword = $data['password'];
 
     $data['password'] = Hash::make($data['password']);
     $data['created_by'] = Auth::user()->id;
-    $data['apikey'] = Hash::make($data['password'].$data['username']);
-    $data['tps'] = 50; // Default TPS value
+    $data['billing_type'] = 'prepaid';
+    $data['api_key'] = Hash::make($data['password'].$data['name']);
     $data['status'] = "ACTIVE"; // Default status active
 
-    $rate = 0;
-
-    $data['masking_rate'] = $rate->masking_rate ?? 0;
-    $data['nonmasking_rate'] = $rate->nonmasking_rate ?? 0;
-
+    // dd($data);
     $user = $this->model->create($data);
-
-
-    //get senderid by user_id
-    $senderId = SenderId::where('user_id', $user->id)->first();
-
-    if (env('APP_TYPE') != 'Aggregator') {
-      $data = [
-        'id' => $user->id,
-        'username' => $user->username,
-        'password' => $unhashedPassword,
-        'available_balance' => $user->available_balance ?? 0,
-        'cli' => $senderId->senderid ?? '',
-        'rate' => $user->smsRate->nonmasking_rate ?? 0,
-      ];
-
-      Redis::set("user:{$user->username}", json_encode($data));
-
-    }
 
     return $user;
 

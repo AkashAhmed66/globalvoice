@@ -1,95 +1,95 @@
 <!-- ADD NEW RECORD -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasAddRecord" aria-labelledby="offcanvasAddUserLabel">
       <div class="offcanvas-header border-bottom">
-        <h5 id="offcanvasAddUserLabel" class="offcanvas-title">Add User</h5>
+        <h5 id="offcanvasAddUserLabel" class="offcanvas-title">New</h5>
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
       </div>
       <div class="offcanvas-body mx-0 flex-grow-0 h-100">
-        <form class="add-new-user pt-0" id="addNewUserForm1">
+        <form class="add-new-number pt-0" id="addNewNumberForm">
 
-          <div class="form-floating form-floating-outline mb-5">
-            <input type="text" class="form-control" id="add-name" placeholder="" name="name" aria-label="" />
-            <label for="add-name">Name</label>
-          </div>
-          <div class="form-floating form-floating-outline mb-5">
-            <input type="text" class="form-control" id="add-username" placeholder="" name="username" aria-label="" autocomplete="off" />
-            <label for="add-username">Username</label>
-          </div>
-          <div class="form-floating form-floating-outline mb-5">
-            <input type="text" id="add-email" class="form-control" placeholder="" aria-label="" name="email" />
-            <label for="add-email">Email</label>
-          </div>
-          <div class="form-floating form-floating-outline mb-5">
-            <input type="password" id="add-password" class="form-control" placeholder="" aria-label="" name="password" autocomplete="new-password" />
-            <label for="add-password">Password</label>
-          </div>
-          <div class="form-floating form-floating-outline mb-5">
-            <input type="password" id="add-confirm-password" class="form-control" placeholder="" aria-label="" name="confirm_password" />
-            <label for="add-confirm-password">Confirm Password</label>
-          </div>
-          <div class="form-floating form-floating-outline mb-5">
-            <input type="text" id="add-mobile" name="mobile" class="form-control" placeholder="" aria-label="" />
-            <label for="add-mobile">Mobile</label>
-          </div>
-          <div class="form-floating form-floating-outline mb-5">
-            <input type="text" id="add-address" name="address" class="form-control" placeholder="" aria-label="address" />
-            <label for="add-address">Address</label>
-          </div>
-          <div class="form-floating form-floating-outline mb-5">
-            <select id="add-user-group" name="user_group_id" class="select2 form-select">
-              <option value="">Select</option>
-              @foreach($userGroups as $group)
-              <option value="{{ $group->id }}">{{ $group->title }}</option>
-             @endforeach
+          <!-- Assign To -->
+          <div class="form-floating form-floating-outline mb-4">
+            <select id="add-assign-to" name="assign_to" class="select2 form-select">
+              <option value="">--</option>
+              @if(isset($users))
+                @foreach($users as $user)
+                  <option value="{{ $user->id }}">{{ $user->name }}</option>
+                @endforeach
+              @endif
             </select>
-            <label for="user_group_id">User Type</label>
+            <label for="add-assign-to">Assign To <span class="text-danger">*</span></label>
           </div>
 
-          <!-- <div class="form-floating form-floating-outline mb-5">
-            <input type="text" id="add-tps" name="tps" class="form-control" placeholder="" aria-label="tps" />
-            <label for="add-tps">TPS</label>
-          </div> -->
-          {{-- <div class="form-floating form-floating-outline mb-5">
-            <select id="add-sms-rate" name="sms_rate_id" class="select2 form-select">
-              <option value="">Select</option>
-              @foreach($smsRates as $rate)
-              <option value="{{ $rate->id }}">{{ $rate->rate_name }}</option>
-             @endforeach
+          <!-- Type -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Type <span class="text-danger">*</span></label>
+            <div class="d-flex gap-4 mt-2">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="type" id="type-ipt" value="IPT" checked>
+                <label class="form-check-label" for="type-ipt">
+                  IPT
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="type" id="type-short-code" value="Short Code">
+                <label class="form-check-label" for="type-short-code">
+                  Short Code
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="type" id="type-toll-free" value="Toll Free">
+                <label class="form-check-label" for="type-toll-free">
+                  Toll Free
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Is booking -->
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <label class="form-label fw-semibold mb-0">Is booking</label>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="is-booking" name="is_booking" value="1">
+            </div>
+          </div>
+
+          <!-- Number -->
+          <div class="form-floating form-floating-outline mb-4">
+            <input type="text" class="form-control" id="add-number" placeholder="Number" name="number" aria-label="Number" />
+            <label for="add-number">Number <span class="text-danger">*</span></label>
+          </div>
+
+          <!-- Add Range -->
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <label class="form-label fw-semibold mb-0">Add Range</label>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="add-range" name="add_range" value="1">
+            </div>
+          </div>
+
+          <!-- Channel -->
+          <div class="form-floating form-floating-outline mb-4">
+            <select id="add-channel" name="channel" class="select2 form-select">
+              <option value="">Channel</option>
+              @if(isset($channels))
+                @foreach($channels as $channel)
+                  <option value="{{ $channel->id }}">{{ $channel->name }}</option>
+                @endforeach
+              @endif
             </select>
-            <label for="user_group_id">SMS Rate</label>
-          </div>
-          <div class="form-floating form-floating-outline mb-5">
-            <select id="add-sms-senderId" name="sms_senderId" class="select2 form-select">
-              <option value="">Select</option>
-              @foreach($senderIds as $senderId)
-                <option value="{{ $senderId->id }}">{{ $senderId->senderid }}</option>
-              @endforeach
-            </select>
-            <label for="sms_senderId">Sender ID</label>
+            <label for="add-channel">Channel</label>
           </div>
 
-          <div class="form-floating form-floating-outline mb-5">
-            <select id="add-sms-mask" name="sms_mask" class="select2 form-select">
-              <option value="">Select</option>
-              @foreach($maskList as $mask)
-                <option value="{{ $mask->id }}">{{ $mask->mask }}</option>
-              @endforeach
-            </select>
-            <label for="sms_senderId">Mask</label>
-          </div> --}}
-
-          <!-- <div class="form-floating form-floating-outline mb-5">
-            <input type="text" id="add-reve-api-key" required name="user_reve_api_key" class="form-control" placeholder="" aria-label="" />
-            <label for="add-mobile">Api Key</label>
+          <!-- DID Balance -->
+          <div class="d-flex justify-content-between align-items-center mb-5">
+            <label class="form-label fw-semibold mb-0">DID Balance</label>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="did-balance" name="did_balance" value="1">
+            </div>
           </div>
 
-          <div class="form-floating form-floating-outline mb-5">
-            <input type="text" id="add-reve-secret-key" required name="user_reve_secret_key" class="form-control" placeholder="" aria-label="" />
-            <label for="add-mobile">Secret Key</label>
-          </div> -->
-
-          <button type="submit" class="btn btn-primary me-sm-3 me-1 data-submit">Submit</button>
-          <button type="reset" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Cancel</button>
+          <button type="submit" class="btn btn-success me-sm-3 me-1 data-submit">Save</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Cancel</button>
         </form>
       </div>
     </div>

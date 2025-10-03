@@ -13,14 +13,11 @@ class CreateUserRequest extends FormRequest
   {
     return [
       'name' => 'string|required|max:250',
-      'username' => 'string|required|max:250',
       //'tps' => 'numeric|required',
       'mobile' => 'string|required',
       'email' => 'string|required',
-      'address' => 'string|required',
       'password' => 'string|required',
       'user_group_id' => 'numeric|required',
-      'sms_rate_id' => 'numeric|required'
     ];
   }
 

@@ -21,7 +21,38 @@ class User extends Model
   protected $table = 'user';
   public $relations = ['userType', 'reseller', 'createBy', 'smsRate', 'emailRate', 'wallet'];
 
-  protected $fillable = ['name', 'username' , 'password', 'email', 'address', 'mobile', 'user_group_id', 'sms_rate_id', 'tps', 'apikey', 'created_by', 'user_reve_api_key', 'user_reve_secret_key', 'status', 'nonmasking_rate', 'masking_rate'];
+  protected $fillable = [
+      'full_name',
+      'name',
+      'username',
+      'email',
+      'email_verified_at',
+      'mobile',
+      'address',
+      'last_login_time',
+      'status',
+      'photo',
+      'created_by',
+      'APIKEY',
+      'api_status',
+      'billing_type',
+      'mrc_otc',
+      'duration_validity',
+      'remember_token',
+      'password',
+      'api_key',
+      'user_group_id',
+      'is_active',
+      'saved_by',
+      'date',
+      'tps',
+      'sms_rate_id',
+      'user_reve_api_key',
+      'user_reve_secret_key',
+      'nonmasking_rate',
+      'masking_rate'
+  ];
+
 
 
   public function userType()

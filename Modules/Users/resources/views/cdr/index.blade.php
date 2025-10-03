@@ -56,7 +56,7 @@
       </table>
     </div>
 
-    @include('users::user.create')
+    {{-- @include('users::cdr.create') --}}
   </div>
 @endsection
 
