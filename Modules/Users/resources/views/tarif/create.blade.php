@@ -43,241 +43,241 @@
                 <tbody id="tarifDetailsBody">
                   <tr>
                     <td class="text-center fw-bold">1.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[1][operator_prefix]" placeholder="013" value="013"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[1][name]" placeholder="GrameenPhone" value="GrameenPhone"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[1][operator_prefix]" placeholder="013" value="013" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[1][name]" placeholder="GrameenPhone" value="GrameenPhone" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[1][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[1][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">2.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[2][operator_prefix]" placeholder="017" value="017"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[2][name]" placeholder="GrameenPhone" value="GrameenPhone"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[2][operator_prefix]" placeholder="017" value="017" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[2][name]" placeholder="GrameenPhone" value="GrameenPhone" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[2][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[2][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">3.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[3][operator_prefix]" placeholder="014" value="014"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[3][name]" placeholder="Banglalink" value="Banglalink"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[3][operator_prefix]" placeholder="014" value="014" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[3][name]" placeholder="Banglalink" value="Banglalink" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[3][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[3][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">4.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[4][operator_prefix]" placeholder="019" value="019"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[4][name]" placeholder="Banglalink" value="Banglalink"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[4][operator_prefix]" placeholder="019" value="019" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[4][name]" placeholder="Banglalink" value="Banglalink" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[4][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[4][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">5.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[5][operator_prefix]" placeholder="018" value="018"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[5][name]" placeholder="Robi" value="Robi"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[5][operator_prefix]" placeholder="018" value="018" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[5][name]" placeholder="Robi" value="Robi" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[5][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[5][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">6.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[6][operator_prefix]" placeholder="016" value="016"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[6][name]" placeholder="Robi [Airtel]" value="Robi [Airtel]"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[6][operator_prefix]" placeholder="016" value="016" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[6][name]" placeholder="Robi [Airtel]" value="Robi [Airtel]" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[6][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[6][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">7.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[7][operator_prefix]" placeholder="015" value="015"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[7][name]" placeholder="Teletalk" value="Teletalk"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[7][operator_prefix]" placeholder="015" value="015" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[7][name]" placeholder="Teletalk" value="Teletalk" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[7][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[7][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">8.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[8][operator_prefix]" placeholder="096" value="096"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[8][name]" placeholder="IPTSP" value="IPTSP"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[8][operator_prefix]" placeholder="096" value="096" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[8][name]" placeholder="IPTSP" value="IPTSP" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[8][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[8][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">9.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[9][operator_prefix]" placeholder="10" value="10"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[9][name]" placeholder="Medical Short Code" value="Medical Short Code"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[9][operator_prefix]" placeholder="10" value="10" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[9][name]" placeholder="Medical Short Code" value="Medical Short Code" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[9][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[9][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">10.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[10][operator_prefix]" placeholder="13" value="13"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[10][name]" placeholder="Travel Short Code" value="Travel Short Code"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[10][operator_prefix]" placeholder="13" value="13" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[10][name]" placeholder="Travel Short Code" value="Travel Short Code" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[10][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[10][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">11.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[11][operator_prefix]" placeholder="16" value="16"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[11][name]" placeholder="General Short Code" value="General Short Code"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[11][operator_prefix]" placeholder="16" value="16" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[11][name]" placeholder="General Short Code" value="General Short Code" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[11][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[11][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">12.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[12][operator_prefix]" placeholder="02" value="02"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[12][name]" placeholder="BTCL" value="BTCL"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[12][operator_prefix]" placeholder="02" value="02" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[12][name]" placeholder="BTCL" value="BTCL" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[12][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[12][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">13.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[13][operator_prefix]" placeholder="03" value="03"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[13][name]" placeholder="BTCL CTG" value="BTCL CTG"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[13][operator_prefix]" placeholder="03" value="03" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[13][name]" placeholder="BTCL CTG" value="BTCL CTG" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[13][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[13][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">14.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[14][operator_prefix]" placeholder="04" value="04"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[14][name]" placeholder="BTCL Khulna" value="BTCL Khulna"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[14][operator_prefix]" placeholder="04" value="04" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[14][name]" placeholder="BTCL Khulna" value="BTCL Khulna" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[14][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[14][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">15.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[15][operator_prefix]" placeholder="05" value="05"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[15][name]" placeholder="BTCL Bogra" value="BTCL Bogra"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[15][operator_prefix]" placeholder="05" value="05" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[15][name]" placeholder="BTCL Bogra" value="BTCL Bogra" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[15][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[15][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">16.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[16][operator_prefix]" placeholder="06" value="06"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[16][name]" placeholder="BTCL Faridpur" value="BTCL Faridpur"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[16][operator_prefix]" placeholder="06" value="06" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[16][name]" placeholder="BTCL Faridpur" value="BTCL Faridpur" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[16][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[16][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">17.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[17][operator_prefix]" placeholder="07" value="07"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[17][name]" placeholder="BTCL Rajshahi" value="BTCL Rajshahi"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[17][operator_prefix]" placeholder="07" value="07" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[17][name]" placeholder="BTCL Rajshahi" value="BTCL Rajshahi" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[17][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[17][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">18.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[18][operator_prefix]" placeholder="08" value="08"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[18][name]" placeholder="BTCL Sylhet" value="BTCL Sylhet"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[18][operator_prefix]" placeholder="08" value="08" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[18][name]" placeholder="BTCL Sylhet" value="BTCL Sylhet" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[18][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[18][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">19.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[19][operator_prefix]" placeholder="09" value="09"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[19][name]" placeholder="BTCL Mymensigh" value="BTCL Myensigh"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[19][operator_prefix]" placeholder="09" value="09" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[19][name]" placeholder="BTCL Mymensigh" value="BTCL Myensigh" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[19][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[19][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center fw-bold">20.</td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[20][operator_prefix]" placeholder="0800" value="0800"></td>
-                    <td><input type="text" class="form-control form-control-sm" name="details[20][name]" placeholder="Toll Free" value="Toll Free"></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[20][operator_prefix]" placeholder="0800" value="0800" readonly></td>
+                    <td><input type="text" class="form-control form-control-sm" name="details[20][name]" placeholder="Toll Free" value="Toll Free" readonly></td>
                     <td><input type="number" class="form-control form-control-sm" name="details[20][rate]" value="0" step="0.01" min="0"></td>
                     <td>
                       <select class="form-select form-select-sm" name="details[20][status]">
                         <option value="Active" selected>Active</option>
-                        <option value="Inactive">Inactive</option>
+                        <option value="Deactive">Deactive</option>
                       </select>
                     </td>
                   </tr>

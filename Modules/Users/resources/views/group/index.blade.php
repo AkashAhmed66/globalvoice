@@ -42,8 +42,13 @@
 
 @section('content')
   <div class="card">
-    <div class="card-header pb-0">
+    <div class="card-header pb-0 d-flex align-items-center justify-content-between">
       <h5 class="card-title mb-0">Search Filter</h5>
+      <div>
+        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#offcanvasAddRecord" aria-controls="offcanvasAddRecord">
+          <i class="ri-add-line ri-16px me-1"></i> Add New Record
+        </button>
+      </div>
     </div>
     <div class="card-datatable table-responsive">
       <table class="dt-advanced-search table table-bordered" id="datatable">

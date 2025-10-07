@@ -59,8 +59,9 @@ class ClientController extends Controller
 
     $tableHeaders = $this->getTableHeader('client-list');
     $userGroups = $this->userGroupRepository->all();
+    $tariffs = DB::table("tariff")->pluck("name", "id")->toArray(); 
 
-    return view('users::client.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups'));
+    return view('users::client.index', compact('title', 'tariffs', 'tableHeaders', 'ajaxUrl', 'userGroups'));
   }
 
   private function getClients(array $filters = []): Collection

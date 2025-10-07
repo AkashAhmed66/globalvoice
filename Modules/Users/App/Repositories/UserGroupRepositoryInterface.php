@@ -13,7 +13,7 @@ interface UserGroupRepositoryInterface extends BaseRepositoryInterface
 
   public function update(array $data, int $id): UserGroup;
 
-  public function find(int $id): UserGroup;
+  public function find(int $id): Collection;
 
   public function delete(int $id): bool;
 }

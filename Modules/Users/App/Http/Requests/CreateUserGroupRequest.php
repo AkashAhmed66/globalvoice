@@ -12,9 +12,7 @@ class CreateUserGroupRequest extends FormRequest
     public function rules(): array
     {
         return [
-			'title'=>'string|required|max:250',
-			'comment'=>'string|required',
-			'status'=>'string|required',
+			'name'=>'string|required|max:250',
         ];
     }
 

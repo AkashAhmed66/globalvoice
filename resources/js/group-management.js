@@ -5,7 +5,7 @@
 'use strict';
 
 $(function () {
-    var offCanvasForm = $('#offcanvasAddRecord');
+  var offCanvasForm = $('#offcanvasAddRecord');
 
   $.ajaxSetup({
     headers: {
@@ -20,7 +20,7 @@ $(function () {
   $(document).on('click', '.delete-record', function () {
     var button = $(this);
     var ugroup_id = button.data('id');
-  
+
     // sweetalert for confirmation of delete
     Swal.fire({
       title: 'Are you sure?',
@@ -42,7 +42,7 @@ $(function () {
           success: function (response) {
             window.location.href = `${baseUrl}users/user-group-list`;
             dt_user.draw();
-            
+
           },
           error: function (error) {
             console.log(error);
@@ -73,26 +73,43 @@ $(function () {
 
   // edit record
   $(document).on('click', '.edit-record', function () {
-      var ugroup_id = $(this).data('id');
+    var ugroup_id = $(this).data('id');
 
-      isEditMode = true;
-      userGroupId = ugroup_id; // Store the operator ID
+    isEditMode = true;
+    userGroupId = ugroup_id; // Store the operator ID
 
     // get data
     $.get(`${baseUrl}users/user-group\/${ugroup_id}\/edit`, function (data) {
-        // Check if the data is a string and needs to be parsed
+      // Check if the data is a string and needs to be parsed
       let jsonData;
       try {
-          jsonData = typeof data === 'string' ? JSON.parse(data) : data;
+        jsonData = typeof data === 'string' ? JSON.parse(data) : data;
       } catch (e) {
-          console.error('Failed to parse JSON:', e);
-          return;
+        console.error('Failed to parse JSON:', e);
+        return;
       }
-      
-      console.log(jsonData)
-      //$('#add-operator-id').val(jsonData.id);
-      $('#add-title').val(jsonData.name);
-      //console.log('Full Name:', jsonData.full_name);
+
+
+      // Set the name field
+      $('#add-title').val(jsonData.user_group.name);
+
+      // Clear all checkboxes first
+      $('input[name="permissions[]"]').prop('checked', false);
+
+      // Check the permissions that are active for this user group
+      if (jsonData.permissions && Array.isArray(jsonData.permissions)) {
+          jsonData.permissions.forEach(function (permission) {
+              // Convert to string for value matching
+              var val = permission.toString();
+              console.log(`Checking permission: ${val}`);
+              // Check by value
+              $(`input[name="permissions[]"][value="${val}"]`).prop('checked', true);
+
+              // Optional: check by ID (safe with prefix)
+              $(`#permission-${val}`).prop('checked', true);
+          });
+      }
+
     });
   });
 
@@ -153,8 +170,8 @@ $(function () {
       url: url,
       type: method,
       success: function (response) {
-		  
-		  console.log(response);
+
+        console.log(response);
         //datatable.draw();
         offCanvasForm.offcanvas('hide');
 
@@ -174,7 +191,7 @@ $(function () {
         userGroupId = null; // Reset the operator ID
       },
       error: function (err) {
-		  console.log(err.responseText); // This will give you more details about the error
+        console.log(err.responseText); // This will give you more details about the error
         offCanvasForm.offcanvas('hide');
         Swal.fire({
           title: 'Error',

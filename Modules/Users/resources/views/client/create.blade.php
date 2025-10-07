@@ -86,8 +86,8 @@
             <select id="add-tariff" name="tariff" class="select2 form-select">
               <option value="">--</option>
               @if(isset($tariffs))
-                @foreach($tariffs as $tariff)
-                  <option value="{{ $tariff->id }}">{{ $tariff->name }}</option>
+                @foreach($tariffs as $key => $tariff)
+                  <option value="{{ $key }}">{{ $tariff }}</option>
                 @endforeach
               @endif
             </select>

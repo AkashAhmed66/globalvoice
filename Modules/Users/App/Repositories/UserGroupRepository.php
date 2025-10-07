@@ -3,6 +3,7 @@ namespace Modules\Users\App\Repositories;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Modules\Users\App\Models\UserGroup;
 
 class UserGroupRepository implements UserGroupRepositoryInterface
@@ -54,9 +55,14 @@ class UserGroupRepository implements UserGroupRepositoryInterface
     return $reseller;
   }
 
-  public function find(int $id): UserGroup
+  public function find(int $id): Collection
   {
-    return $this->model->find($id);
+      $permissions = DB::table('permission')->where('user_group_id', $id)->pluck('role_id')->toArray();
+
+      return new Collection([
+          'user_group' => $this->model->find($id),
+          'permissions' => $permissions
+      ]);
   }
 
   public function delete(int $id): bool

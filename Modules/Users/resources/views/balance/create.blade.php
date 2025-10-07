@@ -31,8 +31,8 @@
             <select id="add-client" name="client" class="select2 form-select">
               <option value="">--</option>
               @if(isset($clients))
-                @foreach($clients as $client)
-                  <option value="{{ $client->id }}">{{ $client->name }}</option>
+                @foreach($clients as $key => $client)
+                  <option value="{{ $key }}">{{ $client }}</option>
                 @endforeach
               @endif
             </select>
