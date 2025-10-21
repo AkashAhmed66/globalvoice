@@ -4,28 +4,15 @@ namespace Modules\Users\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Trait\ActionButtonTrait;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
-use Modules\Smsconfig\App\Models\SenderId;
-use Modules\Smsconfig\App\Repositories\MaskRepositoryInterface;
-use Modules\Smsconfig\App\Repositories\RateRepositoryInterface;
-use Modules\Smsconfig\App\Repositories\SenderIdRepositoryInterface;
-use Modules\Users\App\Http\Requests\CreateUserRequest;
-use Modules\Users\App\Http\Requests\UpdateUserProfileRequest;
-use Modules\Users\App\Http\Requests\UpdateUserRequest;
 use Modules\Users\App\Repositories\UserGroupRepositoryInterface;
 use Modules\Users\App\Repositories\UserRepositoryInterface;
 use Modules\Users\App\Trait\DataTableTrait;
 use Yajra\DataTables\DataTables;
-use Modules\Users\App\Models\User;
-use Modules\Users\App\Models\UserGroup;
-use Modules\Smsconfig\App\Models\Rate;
-use Illuminate\Support\Facades\Hash;
 
 class TarifController extends Controller
 {
@@ -82,90 +69,199 @@ class TarifController extends Controller
 
   public function create()
   {
-    $title = 'Create User';
-    $userTypes = $this->userGroupRepository->getUserTypes();
-    $rates = $this->rateRepository->getRates();
-    $senderIds = $this->senderIdRepository->getAvailableSenderId();
-    return view('users::create', compact('title', 'userTypes', 'rates', 'senderIds'));
+    $title = 'Create Tarif';
+    $pulses = DB::table('pulse')->where('is_visible', 1)->orderBy('id')->get();
+    return view('users::tarif.create', compact('title', 'pulses'));
   }
 
-  public function store(CreateUserRequest $request)
+  public function store(Request $request)
   {
-    $userInfo = $this->userRepository->create($request->except('sms_senderId', 'sms_mask'));
+    try {
+      // Validate required fields
+      $request->validate([
+        'name' => 'required|string|max:255',
+        'pulse' => 'required|integer',
+        'details' => 'required|array',
+      ]);
 
-    //update the senderId with user id
-    if ($request->sms_senderId) {
-      $senderId = $this->senderIdRepository->find($request->sms_senderId);
-      $senderId->user_id = $userInfo->id;
-      $senderId->save();
+      // Check if name already exists
+      $existingTariff = DB::table('tariff')->where('name', $request->name)->first();
+      if ($existingTariff) {
+        return response()->json(['status' => 'error', 'message' => 'Tariff name already exists']);
+      }
+
+      // Start transaction
+      DB::beginTransaction();
+
+      // Get pulse name
+      $pulse = DB::table('pulse')->where('id', $request->pulse)->first();
+      
+      // Insert tariff
+      $tariffId = DB::table('tariff')->insertGetId([
+        'name' => $request->name,
+        'pulse_local' => $pulse ? $pulse->name : '',
+        'pulse_local_id' => $request->pulse,
+        'saved_by' => Auth::id(),
+        'date' => now(),
+      ]);
+
+      // Insert tariff details
+      if ($request->has('details') && is_array($request->details)) {
+        foreach ($request->details as $detail) {
+          if (isset($detail['operator_prefix']) && isset($detail['rate'])) {
+            DB::table('tariff_details')->insert([
+              'tariff_id' => $tariffId,
+              'ref_prefix' => $detail['operator_prefix'],
+              'rate' => $detail['rate'] ?? 0,
+              'is_active' => ($detail['status'] ?? 'Active') === 'Active' ? 1 : 0,
+            ]);
+          }
+        }
+      }
+
+      DB::commit();
+
+      return response()->json(['status' => 'added', 'message' => 'Tariff added successfully', 'id' => $tariffId]);
+
+    } catch (\Exception $e) {
+      DB::rollback();
+      Log::error('Tariff store error: ' . $e->getMessage());
+      return response()->json(['status' => 'error', 'message' => 'Failed to save tariff: ' . $e->getMessage()], 500);
     }
-
-    if ($request->sms_mask) {
-      $mask = $this->maskRepository->find($request->sms_mask);
-      $mask->user_id = $userInfo->id;
-      $mask->save();
-    }
-
-    return response()->json(['status' => 'added', 'message' => 'User added successfully']);
   }
 
   public function show($id)
   {
-    return view('users::show');
+    return view('users::tarif.show');
   }
 
   public function edit($id)
   {
+    try {
+      // Get tariff data
+      $tariff = DB::table('tariff')->where('id', $id)->first();
+      
+      if (!$tariff) {
+        return response()->json(['status' => 'error', 'message' => 'Tariff not found'], 404);
+      }
 
-    $data = $this->userRepository->find($id);
-    if (isset($data->senderIds[0])) {
-      $data['senderId'] = $data->senderIds[0]['senderid'];
+      // Get tariff details with operator prefix info
+      $details = DB::table('tariff_details as d')
+        ->leftJoin('op_prefix as p', 'd.ref_prefix', '=', 'p.prefix')
+        ->where('d.tariff_id', $id)
+        ->select('d.*', 'p.prefix', 'p.detail_name')
+        ->orderBy('d.id')
+        ->get();
+
+      $data = [
+        'tariff' => $tariff,
+        'details' => $details
+      ];
+
+      return response()->json($data);
+
+    } catch (\Exception $e) {
+      Log::error('Tariff edit error: ' . $e->getMessage());
+      return response()->json(['status' => 'error', 'message' => 'Failed to load tariff'], 500);
     }
-    echo $data;
   }
 
-  public function update(UpdateUserRequest $request, $id)
+  public function update(Request $request, $id)
   {
-    $validatedData = $request->validated();
+    try {
+      // Validate required fields
+      $request->validate([
+        'name' => 'required|string|max:255',
+        'pulse' => 'required|integer',
+        'details' => 'required|array',
+      ]);
 
-    $user = User::find($id);
+      // Check if tariff exists
+      $tariff = DB::table('tariff')->where('id', $id)->first();
+      if (!$tariff) {
+        return response()->json(['status' => 'error', 'message' => 'Tariff not found'], 404);
+      }
 
-    if (!$user) {
-      return response()->json(['status' => 'error', 'message' => 'User not found']);
+      // Check if name already exists (excluding current record)
+      $existingTariff = DB::table('tariff')
+        ->where('name', $request->name)
+        ->where('id', '!=', $id)
+        ->first();
+      
+      if ($existingTariff) {
+        return response()->json(['status' => 'error', 'message' => 'Tariff name already exists']);
+      }
+
+      // Start transaction
+      DB::beginTransaction();
+
+      // Get pulse name
+      $pulse = DB::table('pulse')->where('id', $request->pulse)->first();
+
+      // Update tariff
+      DB::table('tariff')->where('id', $id)->update([
+        'name' => $request->name,
+        'pulse_local' => $pulse ? $pulse->name : '',
+        'pulse_local_id' => $request->pulse,
+        'updated_by' => Auth::id(),
+        'updated_at' => now(),
+      ]);
+
+      // Delete existing tariff details
+      DB::table('tariff_details')->where('tariff_id', $id)->delete();
+
+      // Insert new tariff details
+      if ($request->has('details') && is_array($request->details)) {
+        foreach ($request->details as $detail) {
+          if (isset($detail['operator_prefix']) && isset($detail['rate'])) {
+            DB::table('tariff_details')->insert([
+              'tariff_id' => $id,
+              'ref_prefix' => $detail['operator_prefix'],
+              'rate' => $detail['rate'] ?? 0,
+              'is_active' => ($detail['status'] ?? 'Active') === 'Active' ? 1 : 0,
+            ]);
+          }
+        }
+      }
+
+      DB::commit();
+
+      return response()->json(['status' => 'updated', 'message' => 'Tariff updated successfully', 'id' => $id]);
+
+    } catch (\Exception $e) {
+      DB::rollback();
+      Log::error('Tariff update error: ' . $e->getMessage());
+      return response()->json(['status' => 'error', 'message' => 'Failed to update tariff: ' . $e->getMessage()], 500);
     }
-
-    if (isset($request->password)) {
-      $validatedData['password'] = Hash::make($request->password);
-    }
-
-    $rate = Rate::where('id', $request->sms_rate_id)->first();
-
-    $validatedData['masking_rate'] = $rate->masking_rate ?? 0;
-    $validatedData['nonmasking_rate'] = $rate->nonmasking_rate ?? 0;
-
-    // Update the operator with validated data
-    $user->update($validatedData);
-
-    //update the senderId with user id
-    if ($request->sms_senderId) {
-      $senderId = $this->senderIdRepository->find($request->sms_senderId);
-      $senderId->user_id = $user->id;
-      $senderId->save();
-    }
-
-    if ($request->sms_mask) {
-      $mask = $this->maskRepository->find($request->sms_mask);
-      $mask->user_id = $user->id;
-      $mask->save();
-    }
-
-    return response()->json(['status' => 'updated', 'message' => 'User deleted successfully']);
   }
 
   public function destroy($id)
   {
-    $this->userRepository->delete($id);
-    return response()->json(['status' => 'deleted', 'message' => 'User deleted successfully']);
+    try {
+      // Check if tariff exists
+      $tariff = DB::table('tariff')->where('id', $id)->first();
+      if (!$tariff) {
+        return response()->json(['status' => 'error', 'message' => 'Tariff not found'], 404);
+      }
+
+      // Start transaction
+      DB::beginTransaction();
+
+      // Delete tariff details first
+      DB::table('tariff_details')->where('tariff_id', $id)->delete();
+
+      // Delete tariff
+      DB::table('tariff')->where('id', $id)->delete();
+
+      DB::commit();
+
+      return response()->json(['status' => 'deleted', 'message' => 'Tariff deleted successfully']);
+
+    } catch (\Exception $e) {
+      DB::rollback();
+      Log::error('Tariff delete error: ' . $e->getMessage());
+      return response()->json(['status' => 'error', 'message' => 'Failed to delete tariff: ' . $e->getMessage()], 500);
+    }
   }
 
 }

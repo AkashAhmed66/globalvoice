@@ -1,6 +1,6 @@
 'use strict';
 
-$(function() {
+$(function () {
   var offCanvasForm = $('#offcanvasAddRecord');
 
   $.ajaxSetup({
@@ -13,7 +13,7 @@ $(function() {
   var tarifId = null; // Store the current tarif ID for edit
 
   // Delete Record
-  $(document).on('click', '.delete-record', function() {
+  $(document).on('click', '.delete-record', function () {
     var button = $(this);
     var tarif_id = button.data('id');
 
@@ -29,17 +29,17 @@ $(function() {
         cancelButton: 'btn btn-label-secondary'
       },
       buttonsStyling: false
-    }).then(function(result) {
+    }).then(function (result) {
       if (result.value) {
         // delete the data
         $.ajax({
           type: 'DELETE',
           url: `${baseUrl}users/tarif-delete/${tarif_id}`,
-          success: function(response) {
+          success: function (response) {
             window.location.href = `${baseUrl}users/tarif-list`;
             dt_user.draw();
           },
-          error: function(error) {
+          error: function (error) {
             console.log(error);
           }
         });
@@ -67,14 +67,14 @@ $(function() {
   });
 
   // Edit Record
-  $(document).on('click', '.edit-record', function() {
+  $(document).on('click', '.edit-record', function () {
     var tarif_id = $(this).data('id');
 
     isEditMode = true;
     tarifId = tarif_id; // Store the tarif ID
 
     // Get data
-    $.get(`${baseUrl}users/tarif/${tarif_id}/edit`, function(data) {
+    $.get(`${baseUrl}users/tarif/${tarif_id}/edit`, function (data) {
       // Check if the data is a string and needs to be parsed
       let jsonData;
       try {
@@ -86,10 +86,10 @@ $(function() {
 
       $('#add-name').val(jsonData.name);
       $('#add-pulse').val(jsonData.pulse).trigger('change');
-      
+
       // Populate detail rows from data
       if (jsonData.details && jsonData.details.length > 0) {
-        jsonData.details.forEach(function(detail, index) {
+        jsonData.details.forEach(function (detail, index) {
           const rowNumber = index + 1;
           if (rowNumber <= 20) { // Only populate up to 20 rows
             $(`input[name="details[${rowNumber}][operator_prefix]"]`).val(detail.operator_prefix || '');
@@ -118,7 +118,7 @@ $(function() {
       pulse: {
         validators: {
           notEmpty: {
-            message: 'Please select pulse'
+            message: 'Please enter pulse'
           }
         }
       }
@@ -128,15 +128,21 @@ $(function() {
       bootstrap5: new FormValidation.plugins.Bootstrap5({
         // Use this for enabling/changing valid/invalid class
         eleValidClass: '',
-        rowSelector: function(field, ele) {
+        rowSelector: function (field, ele) {
           // field is the field name & ele is the field element
-          return '.mb-5';
+          return '.mb-4';
+        }
+      }),
+      excluded: new FormValidation.plugins.Excluded({
+        excluded: function (field, element, elements) {
+          // Exclude details array fields from validation
+          return field.indexOf('details[') === 0;
         }
       }),
       submitButton: new FormValidation.plugins.SubmitButton(),
       autoFocus: new FormValidation.plugins.AutoFocus()
     }
-  }).on('core.form.valid', function() {
+  }).on('core.form.valid', function () {
 
     var url = isEditMode ? `${baseUrl}users/tarif-update/${tarifId}` : `${baseUrl}users/tarif-store`;
     var method = isEditMode ? 'PUT' : 'POST';
@@ -146,7 +152,7 @@ $(function() {
       data: $('#addNewTarifForm').serialize(),
       url: url,
       type: method,
-      success: function(response) {
+      success: function (response) {
         offCanvasForm.offcanvas('hide');
         Swal.fire({
           icon: 'success',
@@ -162,7 +168,7 @@ $(function() {
         isEditMode = false; // Reset the edit mode
         tarifId = null; // Reset the tarif ID
       },
-      error: function(err) {
+      error: function (err) {
         console.log(err.responseText); // This will give you more details about the error
         offCanvasForm.offcanvas('hide');
         Swal.fire({
@@ -178,12 +184,12 @@ $(function() {
   });
 
   // Clearing form data when offcanvas hidden
-  offCanvasForm.on('hidden.bs.offcanvas', function() {
+  offCanvasForm.on('hidden.bs.offcanvas', function () {
     fv.resetForm(true);
     // Reset form fields to default values
     $('#add-name').val('');
     $('#add-pulse').val('').trigger('change');
-    
+
     // Reset all detail rows to default values
     for (let i = 1; i <= 20; i++) {
       $(`input[name="details[${i}][operator_prefix]"]`).val($(`input[name="details[${i}][operator_prefix]"]`).attr('placeholder') || '');
@@ -191,7 +197,7 @@ $(function() {
       $(`input[name="details[${i}][rate]"]`).val('0');
       $(`select[name="details[${i}][status]"]`).val('Active');
     }
-    
+
     isEditMode = false; // Reset the edit mode
     tarifId = null; // Clear the stored tarif ID
   });

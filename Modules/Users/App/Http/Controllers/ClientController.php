@@ -52,16 +52,22 @@ class ClientController extends Controller
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
         ->addIndexColumn()
+        ->editColumn('is_active', fn($row) => $row->is_active ? 'Active' : 'Inactive')
         ->addColumn('action', fn($row) => $this->editButton('client-edit', $row->id) . ' ' . $this->deleteButton('client-delete', $row->id))
-        ->rawColumns(['status', 'action'])
+        ->rawColumns(['is_active', 'action'])
         ->make();
     }
 
     $tableHeaders = $this->getTableHeader('client-list');
     $userGroups = $this->userGroupRepository->all();
     $tariffs = DB::table("tariff")->pluck("name", "id")->toArray(); 
+    $service_type = DB::table("service_type")->pluck("name", "code")->toArray();
+    $districts = DB::table("area_info")
+    ->distinct()
+    ->pluck("district")
+    ->toArray();
 
-    return view('users::client.index', compact('title', 'tariffs', 'tableHeaders', 'ajaxUrl', 'userGroups'));
+    return view('users::client.index', compact('title', 'tariffs', 'tableHeaders', 'ajaxUrl', 'userGroups', 'districts', 'service_type'));
   }
 
   private function getClients(array $filters = []): Collection
@@ -93,24 +99,88 @@ class ClientController extends Controller
     return view('users::create', compact('title', 'userTypes', 'rates', 'senderIds'));
   }
 
-  public function store(CreateUserRequest $request)
+  private function createOrUpdate(Request $request, $id = null)
   {
-    $userInfo = $this->userRepository->create($request->except('sms_senderId', 'sms_mask'));
+    $data = $request->toArray();
 
-    //update the senderId with user id
-    if ($request->sms_senderId) {
-      $senderId = $this->senderIdRepository->find($request->sms_senderId);
-      $senderId->user_id = $userInfo->id;
-      $senderId->save();
+    if ($id) {
+      // Update existing client
+      return $this->userRepository->update($id, $data);
     }
 
-    if ($request->sms_mask) {
-      $mask = $this->maskRepository->find($request->sms_mask);
-      $mask->user_id = $userInfo->id;
-      $mask->save();
-    }
+    // Create new client
+    return $this->userRepository->create($data);
+  }
 
-    return response()->json(['status' => 'added', 'message' => 'User added successfully']);
+  public function store(Request $request)
+  {
+    // return $request->toArray();
+      // Validate required fields for client
+      $validated = $request->validate([
+          'name'           => 'required|string|max:255',
+          'contact_name'   => 'required|string|max:255',
+          'contact_no'     => 'required|string|max:20',
+          'credit_limit'   => 'required|numeric',
+          'district'       => 'required|string|max:255',
+          'mail'           => 'required|email',
+          'password'       => 'required|string|min:6',
+          'tariff'         => 'required|numeric',
+          'web_name'       => 'required|string|max:255',
+          'zone'           => 'required|string|max:255',
+          'address'        => 'nullable|string|max:255',
+      ]);
+
+      // Insert client and get ID
+      $clientId = DB::table('client')->insertGetId([
+          'name'            => $validated['name'],
+          'address'         => $validated['address'] ?? '',
+          'contact_name'    => $validated['contact_name'],
+          'contact_no'      => $validated['contact_no'],
+          'credit_limit'    => $validated['credit_limit'],
+          'district'        => $validated['district'],
+          'mail'            => $validated['mail'],
+          'password'        => bcrypt($validated['password']),
+          'tariff_id'       => $validated['tariff'],
+          'web_name'        => $validated['web_name'],
+          'zone'            => $validated['zone'],
+          'is_isd_enabled'  => $validated['is_isd_enabled'] ?? 0,
+          'created_by'      => auth()->user()->id,
+          'created_date'    => now(),
+      ]);
+
+      // Process services if available
+      if ($request->has('services')) {
+          foreach ($request->services as $index => $service) {
+              // Check if all required service fields are not null
+              if (
+                  !empty($service['service_type']) &&
+                  !empty($service['service_name']) &&
+                  !empty($service['otc']) &&
+                  !empty($service['mrc']) &&
+                  !empty($service['launch_date']) &&
+                  !empty($service['bill_start_date'])
+              ) {
+                  DB::table('service')->insert([
+                      'type'            => $service['service_type'],
+                      'name'            => $service['service_name'],
+                      'description'     => $service['description'] ?? null,
+                      'launch_date'     => $service['launch_date'],
+                      'bill_start_date' => $service['bill_start_date'],
+                      'otc'             => $service['otc'],
+                      'mrc'             => $service['mrc'],
+                      'client_id'       => $clientId,
+                      'created_by'      => auth()->user()->id,
+                      'created_date'    => now(),
+                      'serial'          => $service['serial'] ?? 1,
+                  ]);
+              }
+          }
+      }
+
+      return response()->json([
+          'status'  => 'added',
+          'message' => 'User and services added successfully',
+      ]);
   }
 
   public function show($id)
@@ -121,54 +191,134 @@ class ClientController extends Controller
   public function edit($id)
   {
 
-    $data = $this->userRepository->find($id);
-    if (isset($data->senderIds[0])) {
-      $data['senderId'] = $data->senderIds[0]['senderid'];
-    }
-    echo $data;
+      // Get the client record
+      $client = DB::table('client')->where('id', $id)->first();
+
+      if (!$client) {
+          return response()->json(['error' => 'Client not found'], 404);
+      }
+
+      // Convert stdClass to array for modification
+      $client = (array) $client;
+
+
+      // Get all related services
+      $services = DB::table('service')
+          ->where('client_id', $id)
+          ->select(
+              'id',
+              'type as service_type',
+              'name as service_name',
+              'description',
+              'launch_date',
+              'bill_start_date',
+              'otc',
+              'mrc',
+              'serial'
+          )
+          ->get();
+
+      // Attach services as array
+      $client['services'] = $services;
+
+      // Return as JSON
+      return response()->json($client);
   }
 
-  public function update(UpdateUserRequest $request, $id)
+
+  public function update(Request $request, $id)
   {
-    $validatedData = $request->validated();
+      // Validate required fields (same as store)
+      $validated = $request->validate([
+          'name'           => 'required|string|max:255',
+          'contact_name'   => 'required|string|max:255',
+          'contact_no'     => 'required|string|max:20',
+          'credit_limit'   => 'required|numeric',
+          'district'       => 'required|string|max:255',
+          'mail'           => 'required|email',
+          'password'       => 'nullable|string|min:6',
+          'tariff'         => 'required|numeric',
+          'web_name'       => 'required|string|max:255',
+          'zone'           => 'required|string|max:255',
+          'address'        => 'nullable|string|max:255',
+      ]);
 
-    $user = User::find($id);
+      $now = now();
 
-    if (!$user) {
-      return response()->json(['status' => 'error', 'message' => 'User not found']);
-    }
+      // Update client
+      DB::table('client')->where('id', $id)->update([
+          'name'            => $validated['name'],
+          'address'         => $validated['address'] ?? '',
+          'contact_name'    => $validated['contact_name'],
+          'contact_no'      => $validated['contact_no'],
+          'credit_limit'    => $validated['credit_limit'],
+          'district'        => $validated['district'],
+          'mail'            => $validated['mail'],
+          'password'        => $validated['password'] ? bcrypt($validated['password']) : DB::raw('password'),
+          'tariff_id'       => $validated['tariff'],
+          'web_name'        => $validated['web_name'],
+          'zone'            => $validated['zone'],
+          'is_isd_enabled'  => $validated['is_isd_enabled'] ?? 0,
+          'created_by'      => auth()->user()->id,
+          'created_date'    => $now,
+      ]);
 
-    if (isset($request->password)) {
-      $validatedData['password'] = Hash::make($request->password);
-    }
+      // Handle services (insert/update)
+      if ($request->has('services')) {
+          foreach ($request->services as $service) {
+              if (
+                  !empty($service['service_type']) &&
+                  !empty($service['service_name']) &&
+                  !empty($service['otc']) &&
+                  !empty($service['mrc']) &&
+                  !empty($service['launch_date']) &&
+                  !empty($service['bill_start_date'])
+              ) {
+                  if (!empty($service['id']) && $service['id'] != 0) {
+                      // Update existing service
+                      DB::table('service')->where('id', $service['id'])->update([
+                          'type'            => $service['service_type'],
+                          'name'            => $service['service_name'],
+                          'description'     => $service['description'] ?? null,
+                          'launch_date'     => $service['launch_date'],
+                          'bill_start_date' => $service['bill_start_date'],
+                          'otc'             => $service['otc'],
+                          'mrc'             => $service['mrc'],
+                          'serial'          => $service['serial'] ?? 1,
+                          'created_by'      => auth()->user()->id,
+                          'created_date'    => $now,
+                      ]);
+                  } else {
+                      // Insert new service
+                      DB::table('service')->insert([
+                          'type'            => $service['service_type'],
+                          'name'            => $service['service_name'],
+                          'description'     => $service['description'] ?? null,
+                          'launch_date'     => $service['launch_date'],
+                          'bill_start_date' => $service['bill_start_date'],
+                          'otc'             => $service['otc'],
+                          'mrc'             => $service['mrc'],
+                          'serial'          => $service['serial'] ?? 1,
+                          'client_id'       => $id,
+                          'created_by'      => auth()->user()->id,
+                          'created_date'    => $now,
+                      ]);
+                  }
+              }
+          }
+      }
 
-    $rate = Rate::where('id', $request->sms_rate_id)->first();
-
-    $validatedData['masking_rate'] = $rate->masking_rate ?? 0;
-    $validatedData['nonmasking_rate'] = $rate->nonmasking_rate ?? 0;
-
-    // Update the operator with validated data
-    $user->update($validatedData);
-
-    //update the senderId with user id
-    if ($request->sms_senderId) {
-      $senderId = $this->senderIdRepository->find($request->sms_senderId);
-      $senderId->user_id = $user->id;
-      $senderId->save();
-    }
-
-    if ($request->sms_mask) {
-      $mask = $this->maskRepository->find($request->sms_mask);
-      $mask->user_id = $user->id;
-      $mask->save();
-    }
-
-    return response()->json(['status' => 'updated', 'message' => 'User deleted successfully']);
+      return response()->json([
+          'status'  => 'updated',
+          'message' => 'Client and services updated successfully',
+      ]);
   }
+
 
   public function destroy($id)
   {
-    $this->userRepository->delete($id);
+    DB::table('service')->where('client_id', $id)->delete();
+    DB::table('client')->where('id', $id)->delete();
     return response()->json(['status' => 'deleted', 'message' => 'User deleted successfully']);
   }
 

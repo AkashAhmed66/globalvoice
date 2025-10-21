@@ -55,7 +55,7 @@ trait DataTableTrait
       'client-list' => [
         "id" => "#",
         'name' => "Name",
-        'status' => "Status",
+        'is_active' => "Status",
         'contact_name' => "Contact Name",
         'contact_no' => "Number",
         'mail' => "Mail",

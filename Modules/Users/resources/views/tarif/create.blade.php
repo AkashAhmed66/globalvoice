@@ -15,16 +15,17 @@
 
           <!-- Pulse -->
           <div class="form-floating form-floating-outline mb-4">
-            <select id="add-pulse" name="pulse" class="select2 form-select">
-              <option value="">Local pulse</option>
-              @if(isset($pulses))
-                @foreach($pulses as $pulse)
-                  <option value="{{ $pulse->id }}">{{ $pulse->name }}</option>
-                @endforeach
-              @endif
-            </select>
+            <input 
+              type="number" 
+              id="add-pulse" 
+              name="pulse" 
+              class="form-control" 
+              placeholder="Enter pulse value"
+              required
+            >
             <label for="add-pulse">Pulse <span class="text-danger">*</span></label>
           </div>
+
 
           <!-- Details Section -->
           <div class="mb-4">

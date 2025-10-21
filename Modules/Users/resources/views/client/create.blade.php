@@ -27,7 +27,7 @@
 
           <!-- Contact Number -->
           <div class="form-floating form-floating-outline mb-4">
-            <input type="text" class="form-control" id="add-contact-number" placeholder="Contact Number" name="contact_number" aria-label="Contact Number" />
+            <input type="text" class="form-control" id="add-contact-number" placeholder="Contact Number" name="contact_no" aria-label="Contact Number" />
             <label for="add-contact-number">Contact Number <span class="text-danger">*</span></label>
           </div>
 
@@ -55,7 +55,7 @@
               <option value="">--</option>
               @if(isset($districts))
                 @foreach($districts as $district)
-                  <option value="{{ $district->id }}">{{ $district->name }}</option>
+                  <option value="{{ $district }}">{{ $district }}</option>
                 @endforeach
               @endif
             </select>
@@ -63,14 +63,19 @@
           </div>
 
           <!-- Zone -->
+          @php
+            $zones = ['Central', 'South-East'];
+            $selectedZone = old('zone', $user->zone ?? ''); // Adjust this as needed
+          @endphp
+
           <div class="form-floating form-floating-outline mb-4">
-            <select id="add-zone" name="zone" class="select2 form-select">
+            <select id="add-zone" name="zone" class="select2 form-select" required>
               <option value="">--</option>
-              @if(isset($zones))
-                @foreach($zones as $zone)
-                  <option value="{{ $zone->id }}">{{ $zone->name }}</option>
-                @endforeach
-              @endif
+              @foreach($zones as $zone)
+                <option value="{{ $zone }}" {{ $selectedZone === $zone ? 'selected' : '' }}>
+                  {{ $zone }}
+                </option>
+              @endforeach
             </select>
             <label for="add-zone">Zone <span class="text-danger">*</span></label>
           </div>
@@ -121,11 +126,12 @@
                 <tbody id="servicesTableBody">
                   <tr>
                     <td>
-                      <select class="form-select form-select-sm" name="services[1][service_type]">
+                      <input type="hidden" name="services[1][id]" value="0">
+                      <select id="service-type-template" class="form-select form-select-sm" name="services[1][service_type]">
                         <option value="">--Service Type</option>
-                        @if(isset($serviceTypes))
-                          @foreach($serviceTypes as $serviceType)
-                            <option value="{{ $serviceType->id }}">{{ $serviceType->name }}</option>
+                        @if(isset($service_type))
+                          @foreach($service_type as $code => $name)
+                            <option value="{{ $code }}">{{ $name }}</option>
                           @endforeach
                         @endif
                       </select>
@@ -140,31 +146,6 @@
                         <i class="ri-add-line"></i>
                       </button>
                       <button type="button" class="btn btn-danger btn-sm remove-service-row" style="display: none;">
-                        <i class="ri-delete-bin-line"></i>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <select class="form-select form-select-sm" name="services[2][service_type]">
-                        <option value="">--Service Type</option>
-                        @if(isset($serviceTypes))
-                          @foreach($serviceTypes as $serviceType)
-                            <option value="{{ $serviceType->id }}">{{ $serviceType->name }}</option>
-                          @endforeach
-                        @endif
-                      </select>
-                    </td>
-                    <td><input type="text" class="form-control form-control-sm" name="services[2][service_name]" placeholder="Service Name"></td>
-                    <td><input type="number" class="form-control form-control-sm" name="services[2][otc]" placeholder="OTC" step="0.01" min="0"></td>
-                    <td><input type="number" class="form-control form-control-sm" name="services[2][mrc]" placeholder="MRC" step="0.01" min="0"></td>
-                    <td><input type="date" class="form-control form-control-sm" name="services[2][launch_date]" placeholder="Launch Date"></td>
-                    <td><input type="date" class="form-control form-control-sm" name="services[2][bill_start_date]" placeholder="Bill Start Date"></td>
-                    <td>
-                      <button type="button" class="btn btn-primary btn-sm me-1" id="addServiceRow2">
-                        <i class="ri-add-line"></i>
-                      </button>
-                      <button type="button" class="btn btn-danger btn-sm remove-service-row">
                         <i class="ri-delete-bin-line"></i>
                       </button>
                     </td>
