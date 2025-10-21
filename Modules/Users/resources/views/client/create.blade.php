@@ -127,7 +127,7 @@
                   <tr>
                     <td>
                       <input type="hidden" name="services[1][id]" value="0">
-                      <select id="service-type-template" class="form-select form-select-sm" name="services[1][service_type]">
+                      <select class="form-select form-select-sm" name="services[1][service_type]">
                         <option value="">--Service Type</option>
                         @if(isset($service_type))
                           @foreach($service_type as $code => $name)
@@ -135,6 +135,7 @@
                           @endforeach
                         @endif
                       </select>
+
                     </td>
                     <td><input type="text" class="form-control form-control-sm" name="services[1][service_name]" placeholder="Service Name"></td>
                     <td><input type="number" class="form-control form-control-sm" name="services[1][otc]" placeholder="OTC" step="0.01" min="0"></td>

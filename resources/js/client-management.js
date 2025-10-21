@@ -49,15 +49,15 @@ $(function () {
   // Remove service row
   $(document).on('click', '.remove-service-row', function () {
     $(this).closest('tr').remove();
-    // Hide remove buttons if only 2 rows remain
-    if ($('#servicesTableBody tr').length <= 2) {
+    // Hide remove buttons if only 1 row remains
+    if ($('#servicesTableBody tr').length <= 1) {
       $('.remove-service-row').hide();
     }
   });
 
   var isEditMode = false; // Track if it's an edit operation
   var clientId = null; // Store the current client ID for edit
-  var serviceRowCounter = 2; // Counter for service rows (starting at 2 since we have 2 initial rows)
+  var serviceRowCounter = 1; // Counter for service rows (starting at 1 since we have 1 initial row)
 
   // Delete Record
   $(document).on('click', '.delete-record', function () {
@@ -383,19 +383,18 @@ $(function () {
     $('#add-tariff').val('').trigger('change');
     $('#enable-isd').prop('checked', false);
 
-    // Reset service table to initial 2 rows
-    $('#servicesTableBody tr:gt(1)').remove();
-    serviceRowCounter = 2;
+    // Reset service table to initial 1 row
+    $('#servicesTableBody tr:gt(0)').remove(); // Remove all rows except the first one
+    serviceRowCounter = 1;
 
-    // Clear service fields in first 2 rows
-    for (let i = 1; i <= 2; i++) {
-      $(`select[name="services[${i}][service_type]"]`).val('');
-      $(`input[name="services[${i}][service_name]"]`).val('');
-      $(`input[name="services[${i}][otc]"]`).val('');
-      $(`input[name="services[${i}][mrc]"]`).val('');
-      $(`input[name="services[${i}][launch_date]"]`).val('');
-      $(`input[name="services[${i}][bill_start_date]"]`).val('');
-    }
+    // Clear service fields in the first row
+    $(`input[name="services[1][id]"]`).val('0');
+    $(`select[name="services[1][service_type]"]`).val('');
+    $(`input[name="services[1][service_name]"]`).val('');
+    $(`input[name="services[1][otc]"]`).val('');
+    $(`input[name="services[1][mrc]"]`).val('');
+    $(`input[name="services[1][launch_date]"]`).val('');
+    $(`input[name="services[1][bill_start_date]"]`).val('');
 
     // Hide remove buttons
     $('.remove-service-row').hide();

@@ -55,6 +55,14 @@
         </thead>
       </table>
     </div>
+    <select id="service-type-template" class="d-none">
+    <option value="">--Service Type</option>
+      @if(isset($service_type))
+        @foreach($service_type as $code => $name)
+          <option value="{{ $code }}">{{ $name }}</option>
+        @endforeach
+      @endif
+    </select>
 
     @include('users::client.create')
   </div>

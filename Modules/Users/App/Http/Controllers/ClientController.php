@@ -217,6 +217,21 @@ class ClientController extends Controller
               'serial'
           )
           ->get();
+      if ($services->isEmpty()) {
+          $services = collect([
+              (object)[
+                  'id'             => 0,
+                  'service_type'   => null,
+                  'service_name'   => null,
+                  'description'    => null,
+                  'launch_date'    => null,
+                  'bill_start_date'=> null,
+                  'otc'            => null,
+                  'mrc'            => null,
+                  'serial'         => null,
+              ]
+          ]);
+      }
 
       // Attach services as array
       $client['services'] = $services;
