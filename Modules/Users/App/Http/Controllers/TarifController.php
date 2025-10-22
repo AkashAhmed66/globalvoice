@@ -46,8 +46,9 @@ class TarifController extends Controller
 
     $tableHeaders = $this->getTableHeader('tarif-list');
     $userGroups = $this->userGroupRepository->all();
+    $opPrefixes = DB::table('op_prefix')->get();
 
-    return view('users::tarif.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups'));
+    return view('users::tarif.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'opPrefixes'));
   }
 
   private function getClients(array $filters = []): Collection
@@ -95,7 +96,7 @@ class TarifController extends Controller
 
       // Get pulse name
       $pulse = DB::table('pulse')->where('id', $request->pulse)->first();
-      
+
       // Insert tariff
       $tariffId = DB::table('tariff')->insertGetId([
         'name' => $request->name,
@@ -140,7 +141,7 @@ class TarifController extends Controller
     try {
       // Get tariff data
       $tariff = DB::table('tariff')->where('id', $id)->first();
-      
+
       if (!$tariff) {
         return response()->json(['status' => 'error', 'message' => 'Tariff not found'], 404);
       }
@@ -187,7 +188,7 @@ class TarifController extends Controller
         ->where('name', $request->name)
         ->where('id', '!=', $id)
         ->first();
-      
+
       if ($existingTariff) {
         return response()->json(['status' => 'error', 'message' => 'Tariff name already exists']);
       }
