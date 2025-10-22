@@ -48,6 +48,9 @@ class NumberController extends Controller
     $ajaxUrl = route('number-list');
     $users = DB::table('user')->select('id', 'name')->get();
     // dd($datas);
+    $longCodes = DB::table('number')->select('no')->get();
+
+     //dd($datas);
 
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
@@ -60,7 +63,7 @@ class NumberController extends Controller
     $tableHeaders = $this->getTableHeader('number-list');
     $userGroups = $this->userGroupRepository->all();
 
-    return view('users::number.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'users'));
+    return view('users::number.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'longCodes', 'users'));
   }
 
   private function getClients(array $filters = []): Collection
@@ -83,6 +86,12 @@ class NumberController extends Controller
       return $query->orderBy('id', 'desc')->get();
   }
 
+private function getAllLongCodes(): array
+{
+    // Fetch only the 'no' column
+    $numbers = DB::table('number')->pluck('no')->toArray();
+    return $numbers; // This will be an array of strings
+}
 
   public function create()
   {
