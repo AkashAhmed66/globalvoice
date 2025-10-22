@@ -46,7 +46,7 @@ class NumberController extends Controller
     $title = 'Number List';
     $datas = $this->getClients();
     $ajaxUrl = route('number-list');
-
+    $users = DB::table('user')->select('id', 'name')->get();
     // dd($datas);
 
     if ($this->ajaxDatatable()) {
@@ -60,7 +60,7 @@ class NumberController extends Controller
     $tableHeaders = $this->getTableHeader('number-list');
     $userGroups = $this->userGroupRepository->all();
 
-    return view('users::number.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups'));
+    return view('users::number.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'users'));
   }
 
   private function getClients(array $filters = []): Collection
@@ -91,6 +91,8 @@ class NumberController extends Controller
     $rates = $this->rateRepository->getRates();
     $senderIds = $this->senderIdRepository->getAvailableSenderId();
     return view('users::create', compact('title', 'userTypes', 'rates', 'senderIds'));
+
+    
   }
 
   public function store(CreateUserRequest $request)
@@ -111,6 +113,18 @@ class NumberController extends Controller
     }
 
     return response()->json(['status' => 'added', 'message' => 'User added successfully']);
+
+    //new
+    $request->validate([
+        'assign_to' => 'required',
+    ]);
+
+    User::create([
+        'assign_to' => $request->assign_to,
+        // other fields...
+    ]);
+
+    return redirect()->back()->with('success', 'Saved successfully');
   }
 
   public function show($id)
