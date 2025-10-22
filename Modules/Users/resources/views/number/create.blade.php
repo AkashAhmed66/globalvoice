@@ -71,6 +71,7 @@
       <div id="longCodeSection" class="form-floating form-floating-outline mb-4" style="display:none;">
         <input type="text" class="form-control" id="long-code" name="long_code" placeholder="Long Code">
         <label for="long-code">Long Code</label>
+         <label for="add-number">Long Code <span class="text-danger">*</span></label>
       </div>
 
       <!-- DID  -->
@@ -125,6 +126,7 @@
           @endif
         </select>
         <label for="peer">Peer</label>
+         <label for="add-number">Peer <span class="text-danger">*</span></label>
       </div>
 
       <!-- Save & Cancel -->
