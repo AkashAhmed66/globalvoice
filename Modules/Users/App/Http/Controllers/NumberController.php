@@ -60,6 +60,8 @@ class NumberController extends Controller
     $tableHeaders = $this->getTableHeader('number-list');
     $userGroups = $this->userGroupRepository->all();
 
+    //dd($tableHeaders);
+
     return view('users::number.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups'));
   }
 

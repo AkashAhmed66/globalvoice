@@ -45,6 +45,9 @@
             </div>
           </div>
 
+
+          
+
           <!-- Is booking -->
           <div class="d-flex justify-content-between align-items-center mb-4">
             <label class="form-label fw-semibold mb-0">Is booking</label>
@@ -93,3 +96,6 @@
         </form>
       </div>
     </div>
+
+
+
