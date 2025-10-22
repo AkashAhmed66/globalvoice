@@ -55,11 +55,13 @@ class BalanceController extends Controller
         ->make();
     }
 
+    // tanvir
     $tableHeaders = $this->getTableHeader('balance-list');
     $userGroups = $this->userGroupRepository->all();
     $clients = DB::table('client')->where('is_Active', 1)->pluck('name', 'id')->toArray();
+    $longCodes = DB::table('number')->select('no')->get();
 
-    return view('users::balance.index', compact('title', 'clients', 'tableHeaders', 'ajaxUrl', 'userGroups'));
+    return view('users::balance.index', compact('title', 'clients', 'tableHeaders', 'ajaxUrl', 'userGroups', 'longCodes'));
   }
 
   private function getClients(array $filters = []): Collection
