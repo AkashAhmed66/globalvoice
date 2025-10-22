@@ -6,6 +6,8 @@ use Modules\Users\App\Http\Controllers\CdrController;
 use Modules\Users\App\Http\Controllers\ClientController;
 use Modules\Users\App\Http\Controllers\MnpController;
 use Modules\Users\App\Http\Controllers\NumberController;
+use Modules\Users\App\Http\Controllers\PeerController;
+use Modules\Users\App\Http\Controllers\RechargeHistoryController;
 use Modules\Users\App\Http\Controllers\ResellerController;
 use Modules\Users\App\Http\Controllers\TarifController;
 use Modules\Users\App\Http\Controllers\UserGroupController;
@@ -77,6 +79,20 @@ Route::middleware('auth')->group(function () {
     Route::get('tarif/{id}/edit', [TarifController::class, 'edit'])->name('tarif-edit');
     Route::put('tarif-update/{id}', [TarifController::class, 'update'])->name('tarif-update');
     Route::delete('tarif-delete/{id}', [TarifController::class, 'destroy'])->name('tarif-delete');
+
+    // peer routes
+    Route::get('peer-list', [PeerController::class, 'index'])->name('peer-list');
+    Route::post('peer-store', [PeerController::class, 'store'])->name('peer-store');
+    Route::get('peer/{id}/edit', [PeerController::class, 'edit'])->name('peer-edit');
+    Route::put('peer-update/{id}', [PeerController::class, 'update'])->name('peer-update');
+    Route::delete('peer-delete/{id}', [PeerController::class, 'destroy'])->name('peer-delete');
+
+    // recharge-history routes
+    Route::get('recharge-history-list', [RechargeHistoryController::class, 'index'])->name('recharge-history-list');
+    Route::post('recharge-history-store', [RechargeHistoryController::class, 'store'])->name('recharge-history-store');
+    Route::get('recharge-history/{id}/edit', [RechargeHistoryController::class, 'edit'])->name('recharge-history-edit');
+    Route::put('recharge-history-update/{id}', [RechargeHistoryController::class, 'update'])->name('recharge-history-update');
+    Route::delete('recharge-history-delete/{id}', [RechargeHistoryController::class, 'destroy'])->name('recharge-history-delete');
 
     // mnp routes
     Route::get('mnp-list', [MnpController::class, 'index'])->name('mnp-list');

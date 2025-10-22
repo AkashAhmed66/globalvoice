@@ -43,6 +43,12 @@
       "slug": "balance-list"
     },
     {
+      "icon": "menu-icon tf-icons ri-money-dollar-circle-line",
+      "url": "users/recharge-history-list",
+      "name": "Recharge History",
+      "slug": "recharge-history-list"
+    },
+    {
       "icon": "menu-icon tf-icons ri-price-tag-3-line",
       "url": "users/tarif-list",
       "name": "Tarif",
