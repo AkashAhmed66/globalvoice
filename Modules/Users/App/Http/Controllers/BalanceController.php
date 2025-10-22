@@ -55,6 +55,7 @@ class BalanceController extends Controller
         ->make();
     }
 
+    // tanvir
     $tableHeaders = $this->getTableHeader('balance-list');
     $userGroups = $this->userGroupRepository->all();
     $clients = DB::table('client')->where('is_Active', 1)->pluck('name', 'id')->toArray();
