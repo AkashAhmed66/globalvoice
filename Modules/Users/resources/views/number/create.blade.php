@@ -72,7 +72,15 @@
         <input type="text" class="form-control" id="long-code" name="long_code" placeholder="Long Code">
         <label for="long-code">Long Code</label>
          <label for="add-number">Long Code <span class="text-danger">*</span></label>
-      </div>
+
+         <!-- Static dropdown list -->
+        <ul id="long-code-list" class="list-group mt-1"
+    style="display:none; position:absolute; z-index:1050; width:100%;
+           max-height:150px; overflow-y:auto; cursor:pointer;
+           background-color:white; border:1px solid #ddd; border-radius:6px;
+           box-shadow:0 4px 8px rgba(0,0,0,0.1);">
+        </ul>
+    </div>
 
       <!-- DID  -->
       <div id="didsec" class="mb-4">
@@ -173,8 +181,6 @@ $('input[name="type"]').on('change', function () {
   }
 });
 
-
-
   // ===== Add Range Toggle =====
   $('#add-range').on('change', function () {
     if ($(this).is(':checked')) {
@@ -195,6 +201,37 @@ $('input[name="type"]').on('change', function () {
     }
   });
 
+  //===== Long code dropdownlogic=====
+
+  $(document).ready(function() {
+        // Pass numbers from PHP to JS
+        var longCodes = @json($longCodes);
+
+        // Fill the dropdown dynamically from database
+        var longCodeList = $('#long-code-list'); // your ul
+        longCodes.forEach(function(code) {
+            longCodeList.append('<li class="list-group-item">' + code.no + '</li>');
+            // use code.no if your database column is 'no'
+        });
+
+        // Optional: click on list item to populate input
+        longCodeList.on('click', 'li', function() {
+            $('#long-code').val($(this).text());
+            longCodeList.hide();
+        });
+
+        // Show dropdown when input is focused
+        $('#long-code').on('focus', function() {
+            longCodeList.show();
+        });
+
+        // Hide dropdown when clicking outside
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('#long-code, #long-code-list').length) {
+                longCodeList.hide();
+            }
+        });
+    });
 
 
   // ===== SIP Method Logic =====
