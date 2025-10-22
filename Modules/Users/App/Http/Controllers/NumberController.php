@@ -46,11 +46,7 @@ class NumberController extends Controller
     $title = 'Number List';
     $datas = $this->getClients();
     $ajaxUrl = route('number-list');
-    $users = DB::table('user')->select('id', 'name')->get();
-    // dd($datas);
-    $longCodes = DB::table('number')->select('no')->get();
-
-     //dd($datas);
+    
 
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
@@ -62,6 +58,8 @@ class NumberController extends Controller
 
     $tableHeaders = $this->getTableHeader('number-list');
     $userGroups = $this->userGroupRepository->all();
+    $users = DB::table('user')->select('id', 'name')->get();
+    $longCodes = DB::table('number')->select('no')->get();
 
     return view('users::number.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'longCodes', 'users'));
   }
