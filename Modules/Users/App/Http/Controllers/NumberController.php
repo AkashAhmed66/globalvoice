@@ -46,7 +46,7 @@ class NumberController extends Controller
     $title = 'Number List';
     $datas = $this->getClients();
     $ajaxUrl = route('number-list');
-    
+
 
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
@@ -58,10 +58,11 @@ class NumberController extends Controller
 
     $tableHeaders = $this->getTableHeader('number-list');
     $userGroups = $this->userGroupRepository->all();
-    $users = DB::table('user')->select('id', 'name')->get();
+    $users = DB::table('client')->select('id', 'name')->get();
     $longCodes = DB::table('number')->select('no')->get();
+    $types = DB::table('number_type')->select('code', 'name')->get();
 
-    return view('users::number.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'longCodes', 'users'));
+    return view('users::number.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'longCodes', 'users', 'types'));
   }
 
   private function getClients(array $filters = []): Collection
@@ -99,36 +100,43 @@ private function getAllLongCodes(): array
     $senderIds = $this->senderIdRepository->getAvailableSenderId();
     return view('users::create', compact('title', 'userTypes', 'rates', 'senderIds'));
 
-    
+
   }
 
-  public function store(CreateUserRequest $request)
+  public function store(Request $request)
   {
-    $userInfo = $this->userRepository->create($request->except('sms_senderId', 'sms_mask'));
 
-    //update the senderId with user id
-    if ($request->sms_senderId) {
-      $senderId = $this->senderIdRepository->find($request->sms_senderId);
-      $senderId->user_id = $userInfo->id;
-      $senderId->save();
+    $data = $request->toArray();
+    //dd($request->input('type'));
+
+    // Get the readable type from the form (e.g. "Short Code")
+    $rawType = trim($request->input('type'));
+
+    // ✅ Map form value → actual DB code (matches your number_type table)
+    $typeMap = [
+        'IPT' => 'ipt',
+        'Short Code' => 'short_code',
+        'Toll Free' => 'toll_free',
+    ];
+
+    $typeCode = $typeMap[$rawType] ?? null;
+
+    // 🚨 Stop if type is invalid
+    if (!$typeCode) {
+        return back()->withErrors(['type' => "Invalid type: $rawType"]);
     }
 
-    if ($request->sms_mask) {
-      $mask = $this->maskRepository->find($request->sms_mask);
-      $mask->user_id = $userInfo->id;
-      $mask->save();
-    }
-
-    return response()->json(['status' => 'added', 'message' => 'User added successfully']);
-
-    //new
-    $request->validate([
-        'assign_to' => 'required',
-    ]);
-
-    User::create([
-        'assign_to' => $request->assign_to,
-        // other fields...
+    DB::table('number')->insert([
+        "is_booked"    => $request->input('is_booked', 'y'), // default y
+        "client_id"    => $request->assign_to,
+        "type"         => $typeCode,
+        "channel"      => $request->input('channel',1),
+        "no"           => $request->input('number'),
+        "created_by"   => auth()->id(),
+        "created_date" => now(),
+        "action_date"  => now(),
+        "did_balance"  => $request->input('did_balance', 'off'),
+        "is_active"    => $request->input('is_active', 1)
     ]);
 
     return redirect()->back()->with('success', 'Saved successfully');

@@ -25,20 +25,23 @@
       <div class="mb-4">
         <label class="form-label fw-semibold">Type <span class="text-danger">*</span></label>
         <div class="d-flex gap-4 mt-2">
-          <div class="form-check">
-            <input class="form-check-input type-radio" type="radio" name="type" id="type-ipt" value="IPT" checked>
-            <label class="form-check-label" for="type-ipt">IPT</label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input type-radio" type="radio" name="type" id="type-short-code" value="Short Code">
-            <label class="form-check-label" for="type-short-code">Short Code</label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input type-radio" type="radio" name="type" id="type-toll-free" value="Toll Free">
-            <label class="form-check-label" for="type-toll-free">Toll Free</label>
-          </div>
+          @foreach($types as $type)
+            <div class="form-check">
+              <input
+                class="form-check-input type-radio"
+                type="radio"
+                name="type"
+                id="type-{{ $type->code }}"
+                value="{{ $type->name }}"
+                {{ $loop->first ? 'checked' : '' }}>
+              <label class="form-check-label" for="type-{{ $type->code }}">
+                {{ $type->name }}
+              </label>
+            </div>
+          @endforeach
         </div>
       </div>
+
 
       <!-- Is booking -->
       <div class="d-flex justify-content-between align-items-center mb-4">
@@ -137,11 +140,15 @@
          <label for="add-number">Peer <span class="text-danger">*</span></label>
       </div>
 
-      <!-- Save & Cancel -->
-      <div class="mt-4">
-        <button type="submit" class="btn btn-success me-sm-3 me-1 data-submit">Save</button>
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Cancel</button>
-      </div>
+        <form action="{{ route('number-store') }}" method="POST">
+          @csrf
+          <!-- Save & Cancel -->
+          <div class="mt-4">
+            <button type="submit" class="btn btn-success me-sm-3 me-1 data-submit">Save</button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Cancel</button>
+          </div>
+        </form>
+
 
     </form>
   </div>
