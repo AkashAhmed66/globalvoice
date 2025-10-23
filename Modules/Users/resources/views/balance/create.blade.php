@@ -85,3 +85,44 @@
     toggleDropdowns(); // Initial state
   });
 </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('addNewBalanceForm');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+
+      fetch('{{ route('balance-store') }}', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          toastr.success(data.message);
+          form.reset();
+
+          // Close offcanvas
+          const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasAddRecord'));
+          offcanvas.hide();
+
+          // Refresh DataTable
+          $('#yourTableId').DataTable().ajax.reload();
+        } else {
+          toastr.error(data.message);
+        }
+      })
+      .catch(error => {
+        toastr.error('Something went wrong!');
+        console.error(error);
+      });
+    });
+  });
+</script>
+
