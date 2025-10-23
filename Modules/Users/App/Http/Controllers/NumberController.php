@@ -46,7 +46,7 @@ class NumberController extends Controller
     $title = 'Number List';
     $datas = $this->getClients();
     $ajaxUrl = route('number-list');
-    
+
 
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
@@ -98,41 +98,39 @@ private function getAllLongCodes(): array
     $rates = $this->rateRepository->getRates();
     $senderIds = $this->senderIdRepository->getAvailableSenderId();
     return view('users::create', compact('title', 'userTypes', 'rates', 'senderIds'));
-
-    
   }
 
-  public function store(CreateUserRequest $request)
+
+
+  public function store(Request $request)
   {
-    $userInfo = $this->userRepository->create($request->except('sms_senderId', 'sms_mask'));
-
-    //update the senderId with user id
-    if ($request->sms_senderId) {
-      $senderId = $this->senderIdRepository->find($request->sms_senderId);
-      $senderId->user_id = $userInfo->id;
-      $senderId->save();
-    }
-
-    if ($request->sms_mask) {
-      $mask = $this->maskRepository->find($request->sms_mask);
-      $mask->user_id = $userInfo->id;
-      $mask->save();
-    }
-
-    return response()->json(['status' => 'added', 'message' => 'User added successfully']);
+    //dd($request->toArray());
 
     //new
     $request->validate([
-        'assign_to' => 'required',
+    'assign_to' => 'required',
     ]);
 
-    User::create([
+    // Insert into number table (assign_to + other fields)
+    DB::table('number')->insert([
         'assign_to' => $request->assign_to,
-        // other fields...
+        'type' => $request->type ?? null,
+        'is_booked' => $request->is_booking ?? 0,
+        'no' => $request->number ?? null,
+        'channel' => $request->channel ?? null,
+        'did_balance' => $request->did_balance ?? 0,
+        'amount' => $request->amount ?? 0,
+        'status' => 1,
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 
-    return redirect()->back()->with('success', 'Saved successfully');
+    return response()->json(['status' => 'added', 'message' => 'Number added successfully']);
   }
+
+
+
+
 
   public function show($id)
   {

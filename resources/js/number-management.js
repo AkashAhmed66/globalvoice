@@ -100,31 +100,6 @@ $(function() {
   // Number form validation
   const fv = FormValidation.formValidation(addNewNumberForm, {
     fields: {
-      assign_to: {
-        validators: {
-          notEmpty: {
-            message: 'Please select assign to'
-          }
-        }
-      },
-      type: {
-        validators: {
-          notEmpty: {
-            message: 'Please select type'
-          }
-        }
-      },
-      number: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter number'
-          },
-          regexp: {
-            regexp: /^[0-9+\-\s()]+$/,
-            message: 'Please enter a valid number format'
-          }
-        }
-      }
     },
     plugins: {
       trigger: new FormValidation.plugins.Trigger(),

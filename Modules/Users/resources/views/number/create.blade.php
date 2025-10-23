@@ -134,7 +134,7 @@
           @endif
         </select>
         <label for="peer">Peer</label>
-         <label for="add-number">Peer <span class="text-danger">*</span></label>
+        <!-- <label for="add-number">Peer <span class="text-danger">*</span></label> -->
       </div>
 
       <!-- Save & Cancel -->
