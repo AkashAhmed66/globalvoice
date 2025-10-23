@@ -100,25 +100,28 @@ class BalanceController extends Controller
     return view('users::create', compact('title', 'userTypes', 'rates', 'senderIds'));
   }
 
-  public function store(CreateUserRequest $request)
-  {
-    $userInfo = $this->userRepository->create($request->except('sms_senderId', 'sms_mask'));
+  public function store (Request $request)
+{
+    // Validate input
+    $request->validate([
+        'client_id' => 'required|integer',
+        'no' => 'required|string',
+        'amount' => 'required|numeric',
+        'last_recharge_time' => 'nullable|date',
+    ]);
 
-    //update the senderId with user id
-    if ($request->sms_senderId) {
-      $senderId = $this->senderIdRepository->find($request->sms_senderId);
-      $senderId->user_id = $userInfo->id;
-      $senderId->save();
-    }
+    // Insert into database
+    DB::table('balance')->insert([
+        'client_id' => $request->client_id,
+        'no' => $request->no,
+        'amount' => $request->amount,
+        'updated_at' => now(),
+        'last_recharge_time' => $request->last_recharge_time ?? now(),
+    ]);
 
-    if ($request->sms_mask) {
-      $mask = $this->maskRepository->find($request->sms_mask);
-      $mask->user_id = $userInfo->id;
-      $mask->save();
-    }
+    return redirect()->back()->with('success', 'Balance added successfully!');
+}
 
-    return response()->json(['status' => 'added', 'message' => 'User added successfully']);
-  }
 
   public function show($id)
   {

@@ -46,7 +46,7 @@ class NumberController extends Controller
     $title = 'Number List';
     $datas = $this->getClients();
     $ajaxUrl = route('number-list');
-    
+
 
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
@@ -99,7 +99,7 @@ private function getAllLongCodes(): array
     $senderIds = $this->senderIdRepository->getAvailableSenderId();
     return view('users::create', compact('title', 'userTypes', 'rates', 'senderIds'));
 
-    
+
   }
 
   public function store(CreateUserRequest $request)

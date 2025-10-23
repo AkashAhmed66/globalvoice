@@ -40,22 +40,27 @@
                                 <tr>
                                     <td class="text-center fw-bold">{{ $index + 1 }}</td>
 
-                                    <td>{{ $prefix->prefix }}
+                                    <!-- Operator Prefix -->
+                                    <td>
+                                        {{ $prefix->prefix }}
                                         <input type="hidden" name="details[{{ $index }}][operator_prefix]" value="{{ $prefix->prefix }}">
                                     </td>
 
-                                    <td>{{ $prefix->detail_name }}
+                                    <!-- Name -->
+                                    <td>
+                                        {{ $prefix->detail_name }}
                                         <input type="hidden" name="details[{{ $index }}][name]" value="{{ $prefix->detail_name }}">
                                     </td>
 
+                                    <!-- Rate -->
                                     <td>
                                         <input type="number" class="form-control form-control-sm"
                                                name="details[{{ $index }}][rate]" value="0" step="0.01" min="0">
                                     </td>
 
+                                    <!-- Status -->
                                     <td>
-                                        <select class="form-select form-select-sm"
-                                                name="details[{{ $index }}][status]">
+                                        <select class="form-select form-select-sm" name="details[{{ $index }}][status]">
                                             <option value="Active" selected>Active</option>
                                             <option value="Inactive">Inactive</option>
                                         </select>

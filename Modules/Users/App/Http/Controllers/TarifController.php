@@ -48,24 +48,45 @@ class TarifController extends Controller
     $userGroups = $this->userGroupRepository->all();
     $opPrefixes = DB::table('op_prefix')->get();
 
+
    return view('users::tarif.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'opPrefixes'));
   }
 
   private function getClients(array $filters = []): Collection
-  {
-      $query = DB::table('tariff');
+{
+    // Get all tariffs
+    $tariffs = DB::table('tariff')
+        ->orderBy('id', 'desc')
+        ->get();
 
-      if (!empty($filters['search_info'])) {
-          $search = $filters['search_info'];
+    // Attach details to each tariff
+    $tariffs->transform(function ($tariff) {
+        $details = DB::table('tariff_details')
+            ->where('tariff_id', $tariff->id)
+            ->select('ref_prefix', 'rate', 'is_active')
+            ->orderBy('id')
+            ->get();
 
-          $query->where(function ($q) use ($search) {
-              $q->where('name', 'like', "%{$search}%")
-                ->orWhere('pulse_local', 'like', "%{$search}%");
-          });
-      }
+        $tariff->details = $details;
+        return $tariff;
+    });
 
-      return $query->orderBy('id', 'desc')->get();
-  }
+    // Apply search filter if needed
+    if (!empty($filters['search_info'])) {
+        $search = strtolower($filters['search_info']);
+        $tariffs = $tariffs->filter(function ($tariff) use ($search) {
+            $nameMatch = str_contains(strtolower($tariff->name), $search);
+            $pulseMatch = str_contains(strtolower($tariff->pulse_local), $search);
+            $detailsMatch = $tariff->details->contains(function ($detail) use ($search) {
+                return str_contains(strtolower($detail->ref_prefix), $search);
+            });
+            return $nameMatch || $pulseMatch || $detailsMatch;
+        })->values();
+    }
+
+    return $tariffs;
+}
+
 
 
   public function create()
