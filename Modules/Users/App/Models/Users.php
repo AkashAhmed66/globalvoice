@@ -1,0 +1,168 @@
+<?php
+
+namespace Modules\Users\App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Modules\Smsconfig\App\Models\SenderId;
+use Modules\Smsconfig\App\Models\Mask;
+use Modules\Transactions\App\Models\UserWallet;
+use Modules\Smsconfig\App\Models\Rate;
+use Database\Factories\UserFactory;
+
+class Users extends Model
+{
+  use HasFactory;
+
+  /**
+   * The attributes that are mass assignable.
+   */
+  protected $table = 'users';
+  public $relations = ['userType', 'reseller', 'createBy', 'smsRate', 'emailRate', 'wallet'];
+
+  protected $fillable = [
+      'full_name',
+      'name',
+      'username',
+      'email',
+      'email_verified_at',
+      'mobile',
+      'address',
+      'last_login_time',
+      'status',
+      'photo',
+      'created_by',
+      'APIKEY',
+      'api_status',
+      'billing_type',
+      'mrc_otc',
+      'duration_validity',
+      'remember_token',
+      'password',
+      'api_key',
+      'user_group_id',
+      'is_active',
+      'saved_by',
+      'date',
+      'tps',
+      'sms_rate_id',
+      'user_reve_api_key',
+      'user_reve_secret_key',
+      'nonmasking_rate',
+      'masking_rate'
+  ];
+
+
+
+  public function userType()
+  {
+    return $this->belongsTo(UserGroup::class, 'user_group_id', 'id');
+  }
+
+  protected $appends = ['is_admin', 'is_reseller', 'is_user'];
+  /**
+   * The attributes that should be hidden for arrays.
+   *
+   * @var array
+   */
+  protected $hidden = [
+    'password',
+    'remember_token',
+  ];
+
+  /**
+   * The attributes that should be cast to native types.
+   *
+   * @var array
+   */
+  protected $casts = [
+    'email_verified_at' => 'datetime',
+  ];
+
+  protected static function newFactory()
+  {
+    return UserFactory::new();
+  }
+
+  public function reseller()
+  {
+    return $this->belongsTo(Reseller::class, 'reseller_id', 'id');
+  }
+
+  public function createBy()
+  {
+    return $this->belongsTo(Users::class, 'created_by', 'id');
+  }
+
+  public function creator()
+  {
+    return $this->hasOne(Users::class, 'id', 'created_by');
+  }
+
+
+  public function getIsAdminAttribute()
+  {
+    return in_array($this->users_group_id, [1, 2]);
+  }
+
+  public function getIsResellerAttribute()
+  {
+    return $this->users_group_id == 3;
+  }
+
+  public function getIsUserAttribute()
+  {
+    return $this->users_group_id > 3;
+  }
+
+  public function isSuperAdmin()
+  {
+    return $this->users_group_id == 1;
+  }
+
+  public function isAdmin()
+  {
+    return $this->users_group_id == 2;
+  }
+
+  public function isReseller()
+  {
+    return $this->users_group_id == 3;
+  }
+
+  public function isCustomer()
+  {
+    return $this->users_group_id == 4;
+  }
+
+  public function getChildrenIdWithMyId()
+  {
+    $userId = [];
+    if (Auth::user()->users_group_id == 4) {
+      $userId = [Auth::user()->id];
+    } else {
+      if (Auth::user()->user_group_id == 3) {
+        $resellerCreatedUserId = Users::where('created_by', '=', Auth::user()->id)->pluck('id');
+        $userId = $resellerCreatedUserId->push(Auth::user()->id);
+      } else {
+        if (Auth::user()->user_group_id == 2) {
+          $adminCreatedUserId = Users::where('created_by', '=', Auth::user()->id)->pluck('id');
+          $resellerCreatedUserId = Users::whereIn('created_by', $adminCreatedUserId)->pluck('id');
+          $userId = $adminCreatedUserId->merge($resellerCreatedUserId)->push(Auth::user()->id);
+        } else {
+          if (Auth::user()->user_group_id == 1) {
+            $supperAdminCreatedUserId = Users::where('created_by', '=', Auth::user()->id)->pluck('id');
+            $adminCreatedUserId = Users::whereIn('created_by', $supperAdminCreatedUserId)->pluck('id');
+            $resellerCreatedUserId = Users::whereIn('created_by', $adminCreatedUserId)->pluck('id');
+            $userId = $supperAdminCreatedUserId->merge($adminCreatedUserId)->merge($resellerCreatedUserId)->push(
+              Auth::user()->id
+            );
+          }
+        }
+      }
+    }
+
+    return $userId;
+  }
+}

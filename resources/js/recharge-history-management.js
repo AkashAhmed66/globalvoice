@@ -1,6 +1,6 @@
 'use strict';
 
-$(function() {
+$(function () {
   var offCanvasForm = $('#offcanvasAddRecord');
 
   $.ajaxSetup({
@@ -10,12 +10,12 @@ $(function() {
   });
 
   var isEditMode = false; // Track if it's an edit operation
-  var userId = null; // Store the current operator ID for edit
+  var tarifId = null; // Store the current tarif ID for edit
 
   // Delete Record
-  $(document).on('click', '.delete-record', function() {
+  $(document).on('click', '.delete-record', function () {
     var button = $(this);
-    var user_id = button.data('id');
+    var tarif_id = button.data('id');
 
     // sweetalert for confirmation of delete
     Swal.fire({
@@ -29,19 +29,17 @@ $(function() {
         cancelButton: 'btn btn-label-secondary'
       },
       buttonsStyling: false
-    }).then(function(result) {
+    }).then(function (result) {
       if (result.value) {
-
         // delete the data
-        
         $.ajax({
           type: 'DELETE',
-          url: `${baseUrl}users/users-delete/${user_id}`,
-          success: function(response) {
-            window.location.href = `${baseUrl}users/users-list`;
+          url: `${baseUrl}users/tarif-delete/${tarif_id}`,
+          success: function (response) {
+            window.location.href = `${baseUrl}users/tarif-list`;
             dt_user.draw();
           },
-          error: function(error) {
+          error: function (error) {
             console.log(error);
           }
         });
@@ -50,7 +48,7 @@ $(function() {
         Swal.fire({
           icon: 'success',
           title: 'Deleted!',
-          text: 'The user has been deleted!',
+          text: 'The tarif has been deleted!',
           customClass: {
             confirmButton: 'btn btn-success'
           }
@@ -58,7 +56,7 @@ $(function() {
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Cancelled',
-          text: 'The User is not deleted!',
+          text: 'The Tarif is not deleted!',
           icon: 'error',
           customClass: {
             confirmButton: 'btn btn-success'
@@ -69,14 +67,14 @@ $(function() {
   });
 
   // Edit Record
-  $(document).on('click', '.edit-record', function() {
-    var user_id = $(this).data('id');
+  $(document).on('click', '.edit-record', function () {
+    var tarif_id = $(this).data('id');
 
     isEditMode = true;
-    userId = user_id; // Store the operator ID
+    tarifId = tarif_id; // Store the tarif ID
 
     // Get data
-    $.get(`${baseUrl}users/users/${user_id}/edit`, function(data) {
+    $.get(`${baseUrl}users/tarif/${tarif_id}/edit`, function (data) {
       // Check if the data is a string and needs to be parsed
       let jsonData;
       try {
@@ -86,27 +84,30 @@ $(function() {
         return;
       }
 
-      $('#add-full-name').val(jsonData.full_name || jsonData.name);
       $('#add-name').val(jsonData.name);
-      $('#add-email').val(jsonData.email);
-      $('#add-mobile').val(jsonData.mobile);
-      $('#add-user-group').val(jsonData.user_group_id).trigger('change');
+      $('#add-pulse').val(jsonData.pulse).trigger('change');
+
+      // Populate detail rows from data
+      if (jsonData.details && jsonData.details.length > 0) {
+        jsonData.details.forEach(function (detail, index) {
+          const rowNumber = index + 1;
+          if (rowNumber <= 20) { // Only populate up to 20 rows
+            $(`input[name="details[${rowNumber}][operator_prefix]"]`).val(detail.operator_prefix || '');
+            $(`input[name="details[${rowNumber}][name]"]`).val(detail.name || '');
+            $(`input[name="details[${rowNumber}][rate]"]`).val(detail.rate || '0');
+            $(`select[name="details[${rowNumber}][status]"]`).val(detail.status || 'Active');
+          }
+        });
+      }
     });
   });
 
-  // Validating form and updating user's data
-  const addNewUserForm1 = document.getElementById('addNewUserForm1');
+  // Validating form and updating tarif data
+  const addNewTarifForm = document.getElementById('addNewTarifForm');
 
-  // User form validation
-  const fv = FormValidation.formValidation(addNewUserForm1, {
+  // Tarif form validation
+  const fv = FormValidation.formValidation(addNewTarifForm, {
     fields: {
-      full_name: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter full name'
-          }
-        }
-      },
       name: {
         validators: {
           notEmpty: {
@@ -114,53 +115,10 @@ $(function() {
           }
         }
       },
-      mobile: {
+      pulse: {
         validators: {
           notEmpty: {
-            message: 'Please enter mobile'
-          },
-          regexp: {
-            regexp: /^[0-9+\-\s()]+$/,
-            message: 'Please enter a valid mobile number'
-          }
-        }
-      },
-      email: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter email'
-          },
-          emailAddress: {
-            message: 'Please enter a valid email address'
-          }
-        }
-      },
-      password: {
-        validators: {
-          callback: {
-            message: 'Please enter password',
-            callback: function(input) {
-              // Only require password if not in edit mode (i.e., creating new)
-              if (!isEditMode) {
-                return input.value.trim().length > 0;
-              }
-              return true;
-            }
-          },
-          stringLength: {
-            min: 6,
-            message: 'Password must be at least 6 characters long',
-            enabled: function() {
-              // Only enforce length if not in edit mode
-              return !isEditMode;
-            }
-          }
-        }
-      },
-      user_group_id: {
-        validators: {
-          notEmpty: {
-            message: 'Please select user group'
+            message: 'Please enter pulse'
           }
         }
       }
@@ -170,41 +128,47 @@ $(function() {
       bootstrap5: new FormValidation.plugins.Bootstrap5({
         // Use this for enabling/changing valid/invalid class
         eleValidClass: '',
-        rowSelector: function(field, ele) {
+        rowSelector: function (field, ele) {
           // field is the field name & ele is the field element
-          return '.mb-4, .mb-5';
+          return '.mb-4';
+        }
+      }),
+      excluded: new FormValidation.plugins.Excluded({
+        excluded: function (field, element, elements) {
+          // Exclude details array fields from validation
+          return field.indexOf('details[') === 0;
         }
       }),
       submitButton: new FormValidation.plugins.SubmitButton(),
       autoFocus: new FormValidation.plugins.AutoFocus()
     }
-  }).on('core.form.valid', function() {
+  }).on('core.form.valid', function () {
 
-    var url = isEditMode ? `${baseUrl}users/users-update/${userId}` : `${baseUrl}users/users-store`;
+    var url = isEditMode ? `${baseUrl}users/tarif-update/${tarifId}` : `${baseUrl}users/tarif-store`;
     var method = isEditMode ? 'PUT' : 'POST';
 
-    // Adding or updating user when form successfully validates
+    // Adding or updating tarif when form successfully validates
     $.ajax({
-      data: $('#addNewUserForm1').serialize(),
+      data: $('#addNewTarifForm').serialize(),
       url: url,
       type: method,
-      success: function(response) {
+      success: function (response) {
         offCanvasForm.offcanvas('hide');
         Swal.fire({
           icon: 'success',
           title: `Successfully ${response.status}!`,
-          text: `User ${response.status} Successfully.`,
+          text: `Tarif ${response.status} Successfully.`,
           customClass: {
             confirmButton: 'btn btn-success'
           }
         }).then(() => {
           // Redirect or reload after the alert
-          window.location.href = `${baseUrl}users/users-list`;
+          window.location.href = `${baseUrl}users/tarif-list`;
         });
         isEditMode = false; // Reset the edit mode
-        userId = null; // Reset the operator ID
+        tarifId = null; // Reset the tarif ID
       },
-      error: function(err) {
+      error: function (err) {
         console.log(err.responseText); // This will give you more details about the error
         offCanvasForm.offcanvas('hide');
         Swal.fire({
@@ -220,18 +184,22 @@ $(function() {
   });
 
   // Clearing form data when offcanvas hidden
-  offCanvasForm.on('hidden.bs.offcanvas', function() {
+  offCanvasForm.on('hidden.bs.offcanvas', function () {
     fv.resetForm(true);
     // Reset form fields to default values
-    $('#add-full-name').val('');
     $('#add-name').val('');
-    $('#add-email').val('');
-    $('#add-mobile').val('');
-    $('#add-password').val('');
-    $('#add-user-group').val('').trigger('change');
-    
+    $('#add-pulse').val('').trigger('change');
+
+    // Reset all detail rows to default values
+    for (let i = 1; i <= 20; i++) {
+      $(`input[name="details[${i}][operator_prefix]"]`).val($(`input[name="details[${i}][operator_prefix]"]`).attr('placeholder') || '');
+      $(`input[name="details[${i}][name]"]`).val($(`input[name="details[${i}][name]"]`).attr('placeholder') || '');
+      $(`input[name="details[${i}][rate]"]`).val('0');
+      $(`select[name="details[${i}][status]"]`).val('Active');
+    }
+
     isEditMode = false; // Reset the edit mode
-    userId = null; // Clear the stored operator ID
+    tarifId = null; // Clear the stored tarif ID
   });
 
 });

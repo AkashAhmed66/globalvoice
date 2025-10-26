@@ -21,8 +21,7 @@
               name="pulse"
               class="form-control"
               placeholder="Enter pulse value"
-              required
-            >
+              required>
             <label for="add-pulse">Pulse <span class="text-danger">*</span></label>
           </div>
 

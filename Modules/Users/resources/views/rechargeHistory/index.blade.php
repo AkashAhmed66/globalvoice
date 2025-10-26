@@ -36,7 +36,7 @@
     const ajaxUrl = @json($ajaxUrl);
     const title = @json($title);
   </script>
-  @vite(['resources/js/tarif-list-table.js', 'resources/js/tarif-management.js'])
+  @vite(['resources/js/recharge-history-list-table.js', 'resources/js/recharge-history-management.js'])
 @endsection
 
 @section('content')
@@ -56,7 +56,7 @@
       </table>
     </div>
 
-    @include('users::tarif.create')
+    @include('users::rechargeHistory.create')
   </div>
 @endsection
 

@@ -90,6 +90,15 @@ trait DataTableTrait
         'pulse_local' => "Local Pulse",
         'action' => 'Action'
       ],
+      'recharge-history-list' => [
+          "#" => "id",
+          "client_name" => "Client",
+          "no" => "DID",
+          "amount" => "Recharge Amount",
+          "created_date" => "Date",
+          "created_by_name" => "By",
+      ],
+
     ];
 
     return $headers[$tableName] ?? [];
