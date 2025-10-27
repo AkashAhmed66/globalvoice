@@ -50,8 +50,8 @@ trait DataTableTrait
         'district' => "Call Rate",
         'district' => "Billsec",
         'district' => "Deduction",
-        'action' => 'Action'
       ],
+      
       'client-list' => [
         "id" => "#",
         'name' => "Name",

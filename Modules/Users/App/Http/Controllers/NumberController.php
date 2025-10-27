@@ -51,7 +51,7 @@ class NumberController extends Controller
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
         ->addIndexColumn()
-        ->addColumn('action', fn($row) => $this->editButton('number-edit', $row->id) . ' ' . $this->deleteButton('number-delete', $row->id))
+        ->addColumn('action', fn($row) => $this->editButton('number-edit', $row->id))
         ->rawColumns(['status', 'action'])
         ->make();
     }
@@ -64,6 +64,7 @@ class NumberController extends Controller
     return view('users::number.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'longCodes', 'users'));
   }
 
+  
   private function getClients(array $filters = []): Collection
   {
       $query = DB::table('number');
@@ -121,7 +122,8 @@ private function getAllLongCodes(): array
 
     return response()->json(['status' => 'added', 'message' => 'User added successfully']);
 
-    //new
+    new
+
     $request->validate([
         'assign_to' => 'required',
     ]);
@@ -134,12 +136,17 @@ private function getAllLongCodes(): array
     return redirect()->back()->with('success', 'Saved successfully');
   }
 
+  
+  
   public function show($id)
   {
     return view('users::show');
   }
 
+  
+  
   public function edit($id)
+
   {
 
     $data = $this->userRepository->find($id);
@@ -173,9 +180,21 @@ private function getAllLongCodes(): array
 
     //update the senderId with user id
     if ($request->sms_senderId) {
+
       $senderId = $this->senderIdRepository->find($request->sms_senderId);
       $senderId->user_id = $user->id;
-      $senderId->save();
+      $senderId->save();new
+    $request->validate([
+        'assign_to' => 'required',
+    ]);
+
+    User::create([
+        'assign_to' => $request->assign_to,
+        // other fields...
+    ]);
+
+    return redirect()->back()->with('success', 'Saved successfully');
+
     }
 
     if ($request->sms_mask) {
@@ -187,10 +206,33 @@ private function getAllLongCodes(): array
     return response()->json(['status' => 'updated', 'message' => 'User deleted successfully']);
   }
 
-  public function destroy($id)
+    public function delete($id)
   {
-    $this->userRepository->delete($id);
-    return response()->json(['status' => 'deleted', 'message' => 'User deleted successfully']);
+    $user = User::find($id);
+
+    if ($user) {
+        // SoftDeletes থাকলে forceDelete, নাহলে delete
+        if (method_exists($user, 'forceDelete')) {
+            return $user->forceDelete();
+        }
+        return $user->delete();
+    }
+
+    return false; 
   }
 
+
+  public function destroy($id)
+  {
+    $deleted = DB::table('number')->where('id', $id)->delete();
+
+    if ($deleted) 
+    {
+      return response()->json([
+        'status' => 'deleted',
+        'message' => 'User deleted successfully'
+      ]);
+    }
+
+  }
 }

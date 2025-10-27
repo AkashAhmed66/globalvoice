@@ -44,6 +44,8 @@ $(function () {
 
       order: [[3, 'desc']],
       dom:
+
+
         '<"card-header d-flex rounded-0 flex-wrap pb-md-0 pt-0"' +
         '<"me-5 ms-n2"f>' +
         '<"d-flex justify-content-start justify-content-md-end align-items-baseline"<"dt-action-buttons d-flex align-items-start align-items-md-center justify-content-sm-center gap-4"lB>>' +
@@ -52,6 +54,9 @@ $(function () {
         '<"col-sm-12 col-md-6"i>' +
         '<"col-sm-12 col-md-6"p>' +
         '>',
+        
+
+
       lengthMenu: [10, 20, 50, 70, 100], //for length of menu
       language: {
         sLengthMenu: '_MENU_',
@@ -59,7 +64,10 @@ $(function () {
         searchPlaceholder: 'Search',
         info: 'Displaying _START_ to _END_ of _TOTAL_ entries'
       },
+
+
       // Buttons with Dropdown
+
       buttons: [
         {
           text: '<i class="ri-add-line ri-16px me-0 me-sm-2 align-baseline"></i><span class="d-none d-sm-inline-block">Add New Record</span>',

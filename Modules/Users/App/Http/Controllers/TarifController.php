@@ -39,7 +39,8 @@ class TarifController extends Controller
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
         ->addIndexColumn()
-        ->addColumn('action', fn($row) => $this->editButton('tarif-edit', $row->id) . ' ' . $this->deleteButton('tarif-delete', $row->id))
+        // ->addColumn('action', fn($row) => $this->editButton('tarif-edit', $row->id) . ' ' . $this->deleteButton('tarif-delete', $row->id))
+        ->addColumn('action', fn($row) => $this->editButton('tarif-edit', $row->id))
         ->rawColumns(['status', 'action'])
         ->make();
     }
@@ -239,11 +240,6 @@ class TarifController extends Controller
   public function destroy($id)
   {
     try {
-      // Check if tariff exists
-      $tariff = DB::table('tariff')->where('id', $id)->first();
-      if (!$tariff) {
-        return response()->json(['status' => 'error', 'message' => 'Tariff not found'], 404);
-      }
 
       // Start transaction
       DB::beginTransaction();
@@ -251,10 +247,9 @@ class TarifController extends Controller
       // Delete tariff details first
       DB::table('tariff_details')->where('tariff_id', $id)->delete();
 
-      // Delete tariff
-      DB::table('tariff')->where('id', $id)->delete();
-
       DB::commit();
+      
+      DB::table('tariff')->where('id', $id)->delete();
 
       return response()->json(['status' => 'deleted', 'message' => 'Tariff deleted successfully']);
 
