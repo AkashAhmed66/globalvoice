@@ -75,7 +75,6 @@ $(function() {
 
     // Get data
     $.get(`${baseUrl}users/balance/${balance_id}/edit`, function(data) {
-      // Check if the data is a string and needs to be parsed
       let jsonData;
       try {
         jsonData = typeof data === 'string' ? JSON.parse(data) : data;
@@ -93,18 +92,13 @@ $(function() {
   // Validating form and updating balance data
   const addNewBalanceForm = document.getElementById('addNewBalanceForm');
 
-  // Balance form validation
   const fv = FormValidation.formValidation(addNewBalanceForm, {
-    fields: {
-      
-    },
+    fields: {},
     plugins: {
       trigger: new FormValidation.plugins.Trigger(),
       bootstrap5: new FormValidation.plugins.Bootstrap5({
-        // Use this for enabling/changing valid/invalid class
         eleValidClass: '',
         rowSelector: function(field, ele) {
-          // field is the field name & ele is the field element
           return '.mb-5';
         }
       }),
@@ -121,24 +115,31 @@ $(function() {
       data: $('#addNewBalanceForm').serialize(),
       url: url,
       type: method,
+
+      // ✅ UPDATED SUCCESS MESSAGE BELOW ✅
       success: function(response) {
         offCanvasForm.offcanvas('hide');
+
+        let actionText = isEditMode ? 'updated' : 'added';
+
         Swal.fire({
           icon: 'success',
-          title: `Successfully ${response.status}!`,
-          text: `Balance ${response.status} Successfully.`,
+          title: `Balance ${actionText} successfully!`,
+          text: `The balance has been ${actionText}.`,
           customClass: {
             confirmButton: 'btn btn-success'
           }
         }).then(() => {
-          // Redirect or reload after the alert
           window.location.href = `${baseUrl}users/balance-list`;
         });
-        isEditMode = false; // Reset the edit mode
-        balanceId = null; // Reset the balance ID
+
+        isEditMode = false;
+        balanceId = null;
       },
+      // ✅ END OF UPDATE ✅
+
       error: function(err) {
-        console.log(err.responseText); // This will give you more details about the error
+        console.log(err.responseText);
         offCanvasForm.offcanvas('hide');
         Swal.fire({
           title: 'Error',
@@ -155,12 +156,11 @@ $(function() {
   // Clearing form data when offcanvas hidden
   offCanvasForm.on('hidden.bs.offcanvas', function() {
     fv.resetForm(true);
-    // Reset form fields to default values
     $('#to-client').prop('checked', true);
     $('#add-client').val('').trigger('change');
     $('#add-amount').val('');
-    isEditMode = false; // Reset the edit mode
-    balanceId = null; // Clear the stored balance ID
+    isEditMode = false;
+    balanceId = null;
   });
 
 });
