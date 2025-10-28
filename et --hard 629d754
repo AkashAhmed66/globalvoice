@@ -1,0 +1,28 @@
+[33m6c881f3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmergedbranch[m[33m)[m HEAD@{0}: pull origin provat: Merge made by the 'ort' strategy.
+[33m5da20ee[m[33m ([m[1;31morigin/mergedbranch[m[33m)[m HEAD@{1}: commit: merged borsha lima dhrubo
+[33m4556047[m[33m ([m[1;31morigin/borsha2[m[33m, [m[1;32mborsha2[m[33m)[m HEAD@{2}: checkout: moving from borsha2 to mergedbranch
+[33m4556047[m[33m ([m[1;31morigin/borsha2[m[33m, [m[1;32mborsha2[m[33m)[m HEAD@{3}: pull origin lima: Merge made by the 'ort' strategy.
+[33m629d754[m HEAD@{4}: reset: moving to 629d754
+[33mf82c432[m HEAD@{5}: pull origin provat: Fast-forward
+[33m629d754[m HEAD@{6}: commit: ipt and shortcode saved to database successfully
+[33mcf1e869[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m, [m[1;32mborsh2[m[33m)[m HEAD@{7}: reset: moving to HEAD
+[33mcf1e869[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m, [m[1;32mborsh2[m[33m)[m HEAD@{8}: checkout: moving from borsh2 to borsha2
+[33mcf1e869[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m, [m[1;32mborsh2[m[33m)[m HEAD@{9}: checkout: moving from main to borsh2
+[33mcf1e869[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m, [m[1;32mborsh2[m[33m)[m HEAD@{10}: checkout: moving from borsha to main
+[33m1faa108[m[33m ([m[1;31morigin/borsha[m[33m, [m[1;32mborsha[m[33m)[m HEAD@{11}: reset: moving to HEAD
+[33m1faa108[m[33m ([m[1;31morigin/borsha[m[33m, [m[1;32mborsha[m[33m)[m HEAD@{12}: checkout: moving from main to borsha
+[33mcf1e869[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m, [m[1;32mborsh2[m[33m)[m HEAD@{13}: pull origin main: Fast-forward
+[33m3f54dfb[m HEAD@{14}: reset: moving to HEAD
+[33m3f54dfb[m HEAD@{15}: checkout: moving from borsha to main
+[33m1faa108[m[33m ([m[1;31morigin/borsha[m[33m, [m[1;32mborsha[m[33m)[m HEAD@{16}: reset: moving to HEAD
+[33m1faa108[m[33m ([m[1;31morigin/borsha[m[33m, [m[1;32mborsha[m[33m)[m HEAD@{17}: commit: getting data to the controller
+[33mcf1e869[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m, [m[1;32mborsh2[m[33m)[m HEAD@{18}: pull origin main: Fast-forward
+[33mf75c6d1[m HEAD@{19}: pull origin provat: Fast-forward
+[33mb9f0d14[m HEAD@{20}: reset: moving to ORIG_HEAD
+[33mb9f0d14[m HEAD@{21}: commit: dropdown of longcode
+[33m6df6e77[m HEAD@{22}: pull origin provat: Merge made by the 'ort' strategy.
+[33m1fb6a00[m HEAD@{23}: commit (merge): nothing
+[33m91634b7[m HEAD@{24}: commit: nothing
+[33m3f54dfb[m HEAD@{25}: checkout: moving from main to borsha
+[33m3f54dfb[m HEAD@{26}: pull origin main: Fast-forward
+[33m3027773[m HEAD@{27}: clone: from https://github.com/AkashAhmed66/globalvoice.git
