@@ -51,6 +51,7 @@ class NumberController extends Controller
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
         ->addIndexColumn()
+        ->editColumn('is_active', fn($row) => $row->is_active ? 'Active' : 'Inactive')
         ->addColumn('action', fn($row) => $this->editButton('number-edit', $row->id))
         ->rawColumns(['status', 'action'])
         ->make();
