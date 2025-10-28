@@ -81,7 +81,7 @@ trait DataTableTrait
         'channel' => "Channel",
         'did_balance' => "DID Balance",
         'amount' => "Amount",
-        'status' => "Status",
+        'is_active' => "Status",
         'action' => 'Action'
       ],
       'tarif-list' => [

@@ -51,6 +51,7 @@ class NumberController extends Controller
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
         ->addIndexColumn()
+        ->editColumn('is_active', fn($row) => $row->is_active ? 'Active' : 'Inactive')
         ->addColumn('action', fn($row) => $this->editButton('number-edit', $row->id))
         ->rawColumns(['status', 'action'])
         ->make();
@@ -137,6 +138,7 @@ private function getAllLongCodes(): array
         "created_date" => now(),
         "action_date"  => now(),
         "did_balance"  => $request->input('did_balance', 'off'),
+        "did_balance"  => $request->input('did_balance', 'on'),
         "is_active"    => $request->input('is_active', 1)
     ]);
 
