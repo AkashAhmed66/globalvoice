@@ -58,9 +58,9 @@
 @section('title', 'Login - Page')
 
 @section('vendor-style')
-  @vite([
+  <!-- @vite([
     'resources/assets/vendor/libs/@form-validation/form-validation.scss'
-  ])
+  ]) -->
 @endsection
 
 @section('page-style')

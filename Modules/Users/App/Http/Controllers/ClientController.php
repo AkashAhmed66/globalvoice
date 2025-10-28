@@ -53,7 +53,8 @@ class ClientController extends Controller
       return DataTables::of($datas)
         ->addIndexColumn()
         ->editColumn('is_active', fn($row) => $row->is_active ? 'Active' : 'Inactive')
-        ->addColumn('action', fn($row) => $this->editButton('client-edit', $row->id) . ' ' . $this->deleteButton('client-delete', $row->id))
+        // ->addColumn('action', fn($row) => $this->editButton('client-edit', $row->id) . ' ' . $this->deleteButton('client-delete', $row->id))
+        ->addColumn('action', fn($row) => $this->editButton('client-edit', $row->id))
         ->rawColumns(['is_active', 'action'])
         ->make();
     }

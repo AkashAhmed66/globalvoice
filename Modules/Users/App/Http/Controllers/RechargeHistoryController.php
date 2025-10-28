@@ -31,7 +31,7 @@ class RechargeHistoryController extends Controller
   public function index()
   {
     $title = 'Recharge History List';
-    $datas = $this->getClients();
+    $datas = $this->getRechargeHistoryData();
     $ajaxUrl = route('recharge-history-list');
 
     // dd($datas);
@@ -39,19 +39,21 @@ class RechargeHistoryController extends Controller
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
         ->addIndexColumn()
+        ->editColumn('no', fn($row) => $row->no ?? $row->client_did)
         ->addColumn('action', fn($row) => $this->editButton('tarif-edit', $row->id) . ' ' . $this->deleteButton('tarif-delete', $row->id))
         ->rawColumns(['status', 'action'])
         ->make();
     }
 
-    $tableHeaders = $this->getTableHeader('tarif-list');
+    $tableHeaders = $this->getTableHeader('recharge-history-list');
     $userGroups = $this->userGroupRepository->all();
     $opPrefixes = DB::table('op_prefix')->get();
 
-    return view('users::rechargeHistory.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'opPrefixes'));
+    return view('users::rechargeHistory.index', 
+    compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'opPrefixes'));
   }
 
-  private function getClients(array $filters = []): Collection
+  private function getData(array $filters = []): Collection
   {
       $query = DB::table('tariff');
 
@@ -264,5 +266,35 @@ class RechargeHistoryController extends Controller
       return response()->json(['status' => 'error', 'message' => 'Failed to delete tariff: ' . $e->getMessage()], 500);
     }
   }
+
+  private function getRechargeHistoryData(array $filters = []): Collection
+
+  {
+    $query = DB::table('recharge_history')
+        ->leftJoin('client as client', 'recharge_history.client_id', '=', 'client.id')
+        ->leftJoin('user as creator', 'recharge_history.created_by', '=', 'creator.id')
+        ->select(
+            'recharge_history.id',
+            'client.name as client_name',
+            'client.contact_no as client_did',
+            'recharge_history.no',
+            'recharge_history.amount',
+            'creator.name as created_by_name',
+            'recharge_history.created_date'
+        );
+
+    if (!empty($filters['search_info'])) {
+        $search = $filters['search_info'];
+        $query->where(function ($q) use ($search) {
+            $q->where('client.name', 'like', "%{$search}%")
+              ->orWhere('recharge_history.no', 'like', "%{$search}%")
+              ->orWhere('recharge_history.amount', 'like', "%{$search}%")
+              ->orWhere('creator.name', 'like', "%{$search}%");
+        });
+    }
+
+    return $query->orderBy('recharge_history.id', 'desc')->get();
+}
+
 
 }

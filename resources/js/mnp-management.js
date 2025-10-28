@@ -28,10 +28,16 @@ $(function() {
         confirmButton: 'btn btn-primary me-3',
         cancelButton: 'btn btn-label-secondary'
       },
+
+
       buttonsStyling: false
     }).then(function(result) {
       if (result.value) {
+
+
         // delete the data
+
+
         $.ajax({
           type: 'DELETE',
           url: `${baseUrl}users/mnp-delete/${user_id}`,

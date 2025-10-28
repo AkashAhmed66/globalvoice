@@ -60,6 +60,7 @@ $(function () {
         info: 'Displaying _START_ to _END_ of _TOTAL_ entries'
       },
       // Buttons with Dropdown
+      
       buttons: (userGroup === 1) ?[
         {
           text: '<i class="ri-add-line ri-16px me-0 me-sm-2 align-baseline"></i><span class="d-none d-sm-inline-block">Add New Record</span>',
