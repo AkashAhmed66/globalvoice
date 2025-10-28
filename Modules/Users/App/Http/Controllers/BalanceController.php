@@ -100,30 +100,60 @@ class BalanceController extends Controller
     return view('users::create', compact('title', 'userTypes', 'rates', 'senderIds'));
   }
 
-  public function store(CreateUserRequest $request)
-  {
-    $userInfo = $this->userRepository->create($request->except('sms_senderId', 'sms_mask'));
+  public function store(Request $request)
+{
+    try {
+        // Validate input
+        $validated = $request->validate([
+            'to' => 'required|in:Client,DID',
+            'amount' => 'required|numeric|min:0',
+            'client' => 'nullable|integer',
+            'did' => 'nullable|string',
+        ]);
 
-    //update the senderId with user id
-    if ($request->sms_senderId) {
-      $senderId = $this->senderIdRepository->find($request->sms_senderId);
-      $senderId->user_id = $userInfo->id;
-      $senderId->save();
+        $insertData = [
+            'amount' => $validated['amount'],
+            'updated_at' => now(),
+            'last_recharge_time' => now(),
+        ];
+
+        if ($validated['to'] === 'Client' && !empty($validated['client'])) {
+            $insertData['client_id'] = $validated['client'];
+        } elseif ($validated['to'] === 'DID' && !empty($validated['did'])) {
+            $insertData['no'] = $validated['did'];
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Client or DID is required.',
+            ]);
+        }
+
+        // Debug Log (to storage/logs/laravel.log)
+        Log::info('Inserting into balance table:', $insertData);
+
+        // Insert and get ID
+        $inserted = DB::table('balance')->insertGetId($insertData);
+
+        if ($inserted) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Balance added successfully',
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Insert failed — DB did not return an ID.',
+            ]);
+        }
+
+    } catch (\Exception $e) {
+        Log::error('Balance store error: ' . $e->getMessage());
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to add balance. ' . $e->getMessage(),
+        ], 500);
     }
-
-    if ($request->sms_mask) {
-      $mask = $this->maskRepository->find($request->sms_mask);
-      $mask->user_id = $userInfo->id;
-      $mask->save();
-    }
-
-    return response()->json(['status' => 'added', 'message' => 'User added successfully']);
-  }
-
-  public function show($id)
-  {
-    return view('users::show');
-  }
+}
 
   public function edit($id)
   {

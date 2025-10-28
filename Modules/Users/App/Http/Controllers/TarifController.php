@@ -48,7 +48,7 @@ class TarifController extends Controller
     $userGroups = $this->userGroupRepository->all();
     $opPrefixes = DB::table('op_prefix')->get();
 
-    return view('users::tarif.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'opPrefixes'));
+   return view('users::tarif.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'opPrefixes'));
   }
 
   private function getClients(array $filters = []): Collection
@@ -77,59 +77,25 @@ class TarifController extends Controller
 
   public function store(Request $request)
   {
-    try {
       // Validate required fields
-      $request->validate([
-        'name' => 'required|string|max:255',
-        'pulse' => 'required|integer',
-        'details' => 'required|array',
-      ]);
+      $data = $request->validate([
+          'name' => 'required|string|max:255',
+          'pulse_local' => 'required|string|max:255',
+        ]);
 
-      // Check if name already exists
-      $existingTariff = DB::table('tariff')->where('name', $request->name)->first();
-      if ($existingTariff) {
-        return response()->json(['status' => 'error', 'message' => 'Tariff name already exists']);
-      }
+        // Insert into tariff table
+        $response = DB::table('tariff')->insert([
+            'name' => $data['name'],
+            'pulse_local' => $data['pulse_local'],
+            'created_by' => auth()->id(), // fixed
+            'created_date' => now(),       // Laravel convention
+        ]);
 
-      // Start transaction
-      DB::beginTransaction();
 
-      // Get pulse name
-      $pulse = DB::table('pulse')->where('id', $request->pulse)->first();
+        return redirect()->route('tarif-list')->with('success', 'Tarif added successfully!');
 
-      // Insert tariff
-      $tariffId = DB::table('tariff')->insertGetId([
-        'name' => $request->name,
-        'pulse_local' => $pulse ? $pulse->name : '',
-        'pulse_local_id' => $request->pulse,
-        'saved_by' => Auth::id(),
-        'date' => now(),
-      ]);
-
-      // Insert tariff details
-      if ($request->has('details') && is_array($request->details)) {
-        foreach ($request->details as $detail) {
-          if (isset($detail['operator_prefix']) && isset($detail['rate'])) {
-            DB::table('tariff_details')->insert([
-              'tariff_id' => $tariffId,
-              'ref_prefix' => $detail['operator_prefix'],
-              'rate' => $detail['rate'] ?? 0,
-              'is_active' => ($detail['status'] ?? 'Active') === 'Active' ? 1 : 0,
-            ]);
-          }
-        }
-      }
-
-      DB::commit();
-
-      return response()->json(['status' => 'added', 'message' => 'Tariff added successfully', 'id' => $tariffId]);
-
-    } catch (\Exception $e) {
-      DB::rollback();
-      Log::error('Tariff store error: ' . $e->getMessage());
-      return response()->json(['status' => 'error', 'message' => 'Failed to save tariff: ' . $e->getMessage()], 500);
-    }
   }
+
 
   public function show($id)
   {
@@ -168,73 +134,64 @@ class TarifController extends Controller
   }
 
   public function update(Request $request, $id)
-  {
+{
     try {
-      // Validate required fields
-      $request->validate([
-        'name' => 'required|string|max:255',
-        'pulse' => 'required|integer',
-        'details' => 'required|array',
-      ]);
+        // Validate main fields and each detail
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'pulse' => 'required|integer|exists:pulse,id',
+            'details' => 'required|array|min:1',
+            'details.*.operator_prefix' => 'required|string',
+            'details.*.rate' => 'required|numeric',
+            'details.*.status' => 'nullable|in:Active,Inactive',
+        ]);
 
-      // Check if tariff exists
-      $tariff = DB::table('tariff')->where('id', $id)->first();
-      if (!$tariff) {
-        return response()->json(['status' => 'error', 'message' => 'Tariff not found'], 404);
-      }
-
-      // Check if name already exists (excluding current record)
-      $existingTariff = DB::table('tariff')
-        ->where('name', $request->name)
-        ->where('id', '!=', $id)
-        ->first();
-
-      if ($existingTariff) {
-        return response()->json(['status' => 'error', 'message' => 'Tariff name already exists']);
-      }
-
-      // Start transaction
-      DB::beginTransaction();
-
-      // Get pulse name
-      $pulse = DB::table('pulse')->where('id', $request->pulse)->first();
-
-      // Update tariff
-      DB::table('tariff')->where('id', $id)->update([
-        'name' => $request->name,
-        'pulse_local' => $pulse ? $pulse->name : '',
-        'pulse_local_id' => $request->pulse,
-        'updated_by' => Auth::id(),
-        'updated_at' => now(),
-      ]);
-
-      // Delete existing tariff details
-      DB::table('tariff_details')->where('tariff_id', $id)->delete();
-
-      // Insert new tariff details
-      if ($request->has('details') && is_array($request->details)) {
-        foreach ($request->details as $detail) {
-          if (isset($detail['operator_prefix']) && isset($detail['rate'])) {
-            DB::table('tariff_details')->insert([
-              'tariff_id' => $id,
-              'ref_prefix' => $detail['operator_prefix'],
-              'rate' => $detail['rate'] ?? 0,
-              'is_active' => ($detail['status'] ?? 'Active') === 'Active' ? 1 : 0,
-            ]);
-          }
+        $tariff = DB::table('tariff')->find($id);
+        if (!$tariff) {
+            return response()->json(['status' => 'error', 'message' => 'Tariff not found'], 404);
         }
-      }
 
-      DB::commit();
+        // Check for duplicate name (exclude current record)
+        if (DB::table('tariff')->where('name', $request->name)->where('id', '!=', $id)->exists()) {
+            return response()->json(['status' => 'error', 'message' => 'Tariff name already exists']);
+        }
 
-      return response()->json(['status' => 'updated', 'message' => 'Tariff updated successfully', 'id' => $id]);
+        DB::beginTransaction();
+
+        $pulse = DB::table('pulse')->find($request->pulse);
+
+        // Update main tariff
+        DB::table('tariff')->where('id', $id)->update([
+            'name' => $request->name,
+            'pulse_local' => $pulse->name,
+            'pulse_local_id' => $pulse->id,
+            'updated_by' => Auth::id(),
+            'updated_at' => now(),
+        ]);
+
+        // Remove old details and insert new ones
+        DB::table('tariff_details')->where('tariff_id', $id)->delete();
+
+        foreach ($request->details as $detail) {
+            DB::table('tariff_details')->insert([
+                'tariff_id' => $id,
+                'ref_prefix' => $detail['operator_prefix'],
+                'rate' => $detail['rate'],
+                'is_active' => ($detail['status'] ?? 'Active') === 'Active' ? 1 : 0,
+            ]);
+        }
+
+        DB::commit();
+
+        return response()->json(['status' => 'updated', 'message' => 'Tariff updated successfully', 'id' => $id]);
 
     } catch (\Exception $e) {
-      DB::rollback();
-      Log::error('Tariff update error: ' . $e->getMessage());
-      return response()->json(['status' => 'error', 'message' => 'Failed to update tariff: ' . $e->getMessage()], 500);
+        DB::rollback();
+        Log::error('Tariff update error: ' . $e->getMessage());
+        return response()->json(['status' => 'error', 'message' => 'Failed to update tariff: ' . $e->getMessage()], 500);
     }
-  }
+}
+
 
   public function destroy($id)
   {

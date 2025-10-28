@@ -96,34 +96,7 @@ $(function() {
   // Balance form validation
   const fv = FormValidation.formValidation(addNewBalanceForm, {
     fields: {
-      to: {
-        validators: {
-          notEmpty: {
-            message: 'Please select to option'
-          }
-        }
-      },
-      client: {
-        validators: {
-          notEmpty: {
-            message: 'Please select client'
-          }
-        }
-      },
-      amount: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter amount'
-          },
-          numeric: {
-            message: 'Please enter a valid amount'
-          },
-          greaterThan: {
-            min: 0,
-            message: 'Amount must be greater than 0'
-          }
-        }
-      }
+      
     },
     plugins: {
       trigger: new FormValidation.plugins.Trigger(),
