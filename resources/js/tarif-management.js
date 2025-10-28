@@ -55,33 +55,31 @@ $(function () {
     });
   });
 
-  // Edit Record
-  $(document).on('click', '.edit-record', function () {
-    tarifId = $(this).data('id');
-    isEditMode = true;
 
-    $.get(`${baseUrl}users/tarif/${tarifId}/edit`, function (data) {
-      let jsonData;
-      try {
-        jsonData = typeof data === 'string' ? JSON.parse(data) : data;
-      } catch (e) {
-        console.error('Failed to parse JSON:', e);
-        return;
-      }
+ // Edit Record
+$(document).on('click', '.edit-record', function () {
+  tarifId = $(this).data('id');
+  isEditMode = true;
 
-      $('#add-name').val(jsonData.name);
-      $('#add-pulse').val(jsonData.pulse_local).trigger('change');
+  $.get(`${baseUrl}users/tarif/${tarifId}/edit`, function (data) {
+    let jsonData;
+    try {
+      jsonData = typeof data === 'string' ? JSON.parse(data) : data;
+      console.log(jsonData);
+    } catch (e) {
+      console.error('Failed to parse JSON:', e);
+      return;
+    }
 
-      if (jsonData.details && jsonData.details.length > 0) {
-        jsonData.details.forEach(function (detail, index) {
-          $(`input[name="details[${index}][operator_prefix]"]`).val(detail.operator_prefix || '');
-          $(`input[name="details[${index}][name]"]`).val(detail.name || '');
-          $(`input[name="details[${index}][rate]"]`).val(detail.rate || '0');
-          $(`select[name="details[${index}][status]"]`).val(detail.status || 'Active');
-        });
-      }
-    });
+    // Fill main form fields only
+    $('#add-name').val(jsonData.name);
+    $('#add-pulse').val(jsonData.pulse_local).trigger('change');
+
+    // Show offcanvas
+    $('#offcanvasAddRecord').offcanvas('show');
   });
+});
+
 
   // Form Validation
   const addNewTarifForm = document.getElementById('addNewTarifForm');

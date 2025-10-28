@@ -130,35 +130,37 @@ class TarifController extends Controller
   }
 
   public function edit($id)
-  {
+{
     try {
-      // Get tariff data
-      $tariff = DB::table('tariff')->where('id', $id)->first();
+        // Get main tariff record
+        $tariff = DB::table('tariff')->where('id', $id)->first();
 
-      if (!$tariff) {
-        return response()->json(['status' => 'error', 'message' => 'Tariff not found'], 404);
-      }
+        if (!$tariff) {
+            return response()->json(['status' => 'error', 'message' => 'Tariff not found'], 404);
+        }
 
-      // Get tariff details with operator prefix info
-      $details = DB::table('tariff_details as d')
-        ->leftJoin('op_prefix as p', 'd.ref_prefix', '=', 'p.prefix')
-        ->where('d.tariff_id', $id)
-        ->select('d.*', 'p.prefix', 'p.detail_name')
-        ->orderBy('d.id')
-        ->get();
+        // Get all related details with operator prefix info
+        // $details = DB::table('tariff as d')
+        //     ->leftJoin('tariff_details as p', 'd.id', '=', 'p.tariff_id')
+        //     ->where('d.id', $id)
+        //     ->select('d.*', 'p.prefix', 'p.detail_name')
+        //     ->orderBy('d.id')
+        //     ->get();
 
-      $data = [
-        'tariff' => $tariff,
-        'details' => $details
-      ];
-
-      return response()->json($data);
+        // Flatten response — easier for frontend
+        return response()->json([
+            'id' => $tariff->id,
+            'name' => $tariff->name,
+            'pulse_local' => $tariff->pulse_local, // adjust field name if different
+            // 'details' => $details
+        ]);
 
     } catch (\Exception $e) {
-      Log::error('Tariff edit error: ' . $e->getMessage());
-      return response()->json(['status' => 'error', 'message' => 'Failed to load tariff'], 500);
+        Log::error('Tariff edit error: ' . $e->getMessage());
+        return response()->json(['status' => 'error', 'message' => 'Failed to load tariff'], 500);
     }
-  }
+}
+
 
   public function update(Request $request, $id)
 {
