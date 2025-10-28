@@ -138,6 +138,7 @@ private function getAllLongCodes(): array
         "created_date" => now(),
         "action_date"  => now(),
         "did_balance"  => $request->input('did_balance', 'off'),
+        "did_balance"  => $request->input('did_balance', 'on'),
         "is_active"    => $request->input('is_active', 1)
     ]);
 
