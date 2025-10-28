@@ -126,6 +126,15 @@
         </div>
       </div>
 
+      <!-- ✅ NEW: Status Dropdown -->
+        <div class="form-floating form-floating-outline mb-4">
+          <select id="add-status" name="is_active" class="form-select">
+            <option value="1" selected>Active</option>
+            <option value="0">Inactive</option>
+          </select>
+          <label for="add-status">Status <span class="text-danger">*</span></label>
+        </div>
+<!-- ✅ END -->
 
       <!-- Peer Dropdown (only for Peer method) -->
       <div id="peerSection" class="form-floating form-floating-outline mb-4">
