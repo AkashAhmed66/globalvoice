@@ -114,7 +114,12 @@ class TarifController extends Controller
         ]);
 
 
-        return redirect()->route('tarif-list')->with('success', 'Tarif added successfully!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Tarif added successfully!',
+            'status' => 'Created',
+            'redirect' => route('tarif-list'),
+        ]);
 
   }
 
@@ -226,7 +231,7 @@ class TarifController extends Controller
       DB::table('tariff_details')->where('tariff_id', $id)->delete();
 
       DB::commit();
-      
+
       DB::table('tariff')->where('id', $id)->delete();
 
       return response()->json(['status' => 'deleted', 'message' => 'Tariff deleted successfully']);

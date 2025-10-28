@@ -126,7 +126,7 @@ $(function () {
         Swal.fire({
           icon: 'success',
           title: `Successfully ${response.status}!`,
-          text: `Tarif ${response.status} Successfully.`,
+          text: `${response.message}.`,
           customClass: { confirmButton: 'btn btn-success' }
         }).then(() => window.location.href = `${baseUrl}users/tarif-list`);
         isEditMode = false;
