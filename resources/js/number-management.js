@@ -66,12 +66,112 @@ $(function() {
     });
   });
 
-  // Edit Record
-  $(document).on('click', '.edit-record', function() {
-    var number_id = $(this).data('id');
-
+  //edit
+// Edit record
+$(document).on('click', '.edit-record', function () {
+    let id = $(this).data('id');
+    numberId = id;
     isEditMode = true;
-    numberId = number_id; // Store the number ID
+
+    $.ajax({
+        url: `${baseUrl}users/number/${id}/edit`,
+        type: 'GET',
+        success: function (response) {
+
+            // Assign To
+            $('#add-assign-to').val(response.assign_to).trigger('change');
+
+            // Type (IPT / Short Code / Toll Free)
+           // Uncheck all type radios first
+              $('input[name="type"]').prop('checked', false);
+              // Check the one that matches the database
+              $('input[name="type"]').each(function() {
+                  let radioVal = $(this).val().toLowerCase().replace(' ', '_');
+                  let dbVal = response.type.toLowerCase().replace(' ', '_');
+                  if (radioVal === dbVal) {
+                      $(this).prop('checked', true).trigger('change');
+                  }
+              });
+
+
+             // ===== SIP Method radios (Register / Peer) =====
+            if (response.sip_method === 'Register' || response.sip_method === 'Peer') {
+                $('input[name="sip_method"]').prop('checked', false);
+                $('input[name="sip_method"][value="' + response.sip_method + '"]').prop('checked', true);
+                setTimeout(function() {
+                    $('input[name="sip_method"][value="' + response.sip_method + '"]').trigger('change');
+                }, 50);
+            }
+
+
+            $('#long-code').val(response.shortcode || '');
+
+            // Show Long Code if type is short_code
+            if (response.type.toLowerCase() === 'short_code') {
+              $('#longCodeSection').show();
+              $('#long-code').val(response.long_code || '');
+            } else {
+              $('#longCodeSection').hide();
+              $('#long-code').val('');
+            }
+
+
+            // Number
+            $('#add-number').val(response.number);
+
+            // Add Range
+            $('#add-range').prop('checked', response.add_range == 1 || response.add_range === '1');
+
+            // Channel
+            $('#add-channel').val(response.channel).trigger('change');
+
+            // Type radio
+            $('input[name="type"]').each(function() {
+              if ($(this).val().toLowerCase().replace(' ', '_') === response.type.toLowerCase()) {
+                $(this).prop('checked', true).trigger('change');
+              }
+            });
+
+            // DID Balance
+            $('#add-range1').prop('checked', response.did_balance === 'on').trigger('change');
+
+            // Is Booking toggle
+            $('#is-booking').prop('checked', response.is_booked === 'y');
+
+            // SIP Method
+            //$('input[name="sip_method"][value="' + response.sip_method + '"]').prop('checked', true).trigger('change');
+
+            // Status
+            $('#add-status').val(response.is_active).trigger('change');
+
+
+
+
+            // Optional fields
+            if (response.shortcode) $('#add-shortcode').val(response.shortcode);
+            if (response.call_limit_value) $('#call-limit').val(response.call_limit_value);
+            if (response.sip_secret) $('#sip-secret').val(response.sip_secret);
+
+
+            // Show offcanvas
+            $('#offcanvasAddRecord').offcanvas('show');
+        },
+        error: function (xhr) {
+            console.error('Failed to fetch number:', xhr.responseText);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error fetching number data',
+                text: 'Please try again later.',
+                customClass: { confirmButton: 'btn btn-danger' }
+            });
+        }
+    });
+
+
+
+
+
+
 
     // Get data
     $.get(`${baseUrl}users/number/${number_id}/edit`, function(data) {
@@ -79,6 +179,7 @@ $(function() {
       let jsonData;
       try {
         jsonData = typeof data === 'string' ? JSON.parse(data) : data;
+        console.log(jsonData)
       } catch (e) {
         console.error('Failed to parse JSON:', e);
         return;
@@ -100,7 +201,7 @@ $(function() {
   // Number form validation
   const fv = FormValidation.formValidation(addNewNumberForm, {
     fields: {
-      
+
     },
     plugins: {
       trigger: new FormValidation.plugins.Trigger(),

@@ -104,11 +104,11 @@
         <label class="form-label fw-semibold">SIP Method <span class="text-danger">*</span></label>
         <div class="d-flex gap-4 mt-2">
           <div class="form-check">
-            <input class="form-check-input sip-method" type="radio" name="sip_method" id="sip-register" value="Register">
+            <input class="form-check-input sip-method" type="radio" name="sip_method" id="sip-register" value="Register" checked>
             <label class="form-check-label" for="sip-register">Register</label>
           </div>
           <div class="form-check">
-            <input class="form-check-input sip-method" type="radio" name="sip_method" id="sip-peer" value="Peer" checked>
+            <input class="form-check-input sip-method" type="radio" name="sip_method" id="sip-peer" value="Peer">
             <label class="form-check-label" for="sip-peer">Peer</label>
           </div>
         </div>
