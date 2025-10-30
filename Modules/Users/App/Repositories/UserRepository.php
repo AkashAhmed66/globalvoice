@@ -77,7 +77,10 @@ class UserRepository implements UserRepositoryInterface
     $data['created_by'] = Auth::user()->id;
     $data['billing_type'] = 'prepaid';
     $data['api_key'] = Hash::make($data['password'].$data['name']);
-    $data['status'] = "ACTIVE"; // Default status active
+    $data['status'] = "ACTIVE";
+    $data['address'] = "address";
+    $data['saved_by'] = auth()->id();
+    $data['date'] = now();
 
     // dd($data);
     $user = $this->model->create($data);

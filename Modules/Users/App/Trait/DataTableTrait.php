@@ -46,10 +46,10 @@ trait DataTableTrait
         'contact_name' => "LOCAL / ISD",
         'contact_no' => "Source",
         'mail' => "Destination",
-        'district' => "OBD Route",
-        'district' => "Call Rate",
-        'district' => "Billsec",
-        'district' => "Deduction",
+        'obd' => "OBD Route",
+        'rate' => "Call Rate",
+        'billsec' => "Billsec",
+        'deduction' => "Deduction",
       ],
       
       'client-list' => [
