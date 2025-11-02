@@ -49,7 +49,7 @@ class UserGroupController extends Controller
         }
 
         $tableHeaders = $this->getTableHeader('user-group-list');
-        $roles = DB::table('role')->where('is_visible', 1)->orderBy('serial')->pluck('name', 'id')->toArray();
+        $roles = DB::table('role')->where('is_visible', 1)->orderBy('serial')->pluck('view_name', 'id')->toArray();
 
         return view('users::group.index', compact('title', 'tableHeaders', 'ajaxUrl', 'roles'));
     }

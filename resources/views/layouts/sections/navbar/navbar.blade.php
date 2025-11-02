@@ -80,7 +80,7 @@
               <li class="nav-item navbar-dropdown dropdown-user dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                   @if (Auth::check())
-                    <div class="d-flex align-items-center user-info-rubber px-3 py-2">
+                    <div class="d-flex align-items-center px-3 py-2">
                       <div class="d-flex flex-column text-end me-3">
                         <span class="fw-medium text-dark small mb-0" style="line-height: 1.2;">{{ Auth::user()->name }}</span>
                         <small class="text-muted" style="font-size: 0.75rem; line-height: 1;">{{ $userGroup }}</small>

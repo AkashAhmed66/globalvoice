@@ -39,12 +39,12 @@ class PeerController extends Controller
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
         ->addIndexColumn()
-        ->addColumn('action', fn($row) => $this->editButton('tarif-edit', $row->id) . ' ' . $this->deleteButton('tarif-delete', $row->id))
+        ->addColumn('action', fn($row) => $this->editButton('peer-edit', $row->id) . ' ' . $this->deleteButton('peer-delete', $row->id))
         ->rawColumns(['status', 'action'])
         ->make();
     }
 
-    $tableHeaders = $this->getTableHeader('tarif-list');
+    $tableHeaders = $this->getTableHeader('peer-list');
     $userGroups = $this->userGroupRepository->all();
     $opPrefixes = DB::table('op_prefix')->get();
 
@@ -70,9 +70,8 @@ class PeerController extends Controller
 
   public function create()
   {
-    $title = 'Create Tarif';
-    $pulses = DB::table('pulse')->where('is_visible', 1)->orderBy('id')->get();
-    return view('users::tarif.create', compact('title', 'pulses'));
+    $title = 'Create Peer';
+    return view('users::peer.create', compact('title'));
   }
 
   public function store(Request $request)
@@ -81,53 +80,32 @@ class PeerController extends Controller
       // Validate required fields
       $request->validate([
         'name' => 'required|string|max:255',
-        'pulse' => 'required|integer',
-        'details' => 'required|array',
+        'channel' => 'required|string|max:255',
+        'host' => 'required|string|max:255',
       ]);
 
       // Check if name already exists
-      $existingTariff = DB::table('tariff')->where('name', $request->name)->first();
-      if ($existingTariff) {
-        return response()->json(['status' => 'error', 'message' => 'Tariff name already exists']);
+      $existingPeer = DB::table('peer')->where('name', $request->name)->first();
+      if ($existingPeer) {
+        return response()->json(['status' => 'error', 'message' => 'Peer name already exists'], 422);
       }
 
-      // Start transaction
-      DB::beginTransaction();
-
-      // Get pulse name
-      $pulse = DB::table('pulse')->where('id', $request->pulse)->first();
-
-      // Insert tariff
-      $tariffId = DB::table('tariff')->insertGetId([
+      // Insert peer
+      $peerId = DB::table('peer')->insertGetId([
         'name' => $request->name,
-        'pulse_local' => $pulse ? $pulse->name : '',
-        'pulse_local_id' => $request->pulse,
-        'saved_by' => Auth::id(),
-        'date' => now(),
+        'host' => $request->host,
+        'channel' => $request->channel,
+        'is_active' => 1,
+        'created_by' => Auth::id(),
+        'created_date' => now(),
+        'action_date' => now(),
       ]);
 
-      // Insert tariff details
-      if ($request->has('details') && is_array($request->details)) {
-        foreach ($request->details as $detail) {
-          if (isset($detail['operator_prefix']) && isset($detail['rate'])) {
-            DB::table('tariff_details')->insert([
-              'tariff_id' => $tariffId,
-              'ref_prefix' => $detail['operator_prefix'],
-              'rate' => $detail['rate'] ?? 0,
-              'is_active' => ($detail['status'] ?? 'Active') === 'Active' ? 1 : 0,
-            ]);
-          }
-        }
-      }
-
-      DB::commit();
-
-      return response()->json(['status' => 'added', 'message' => 'Tariff added successfully', 'id' => $tariffId]);
+      return response()->json(['status' => 'added', 'message' => 'Peer added successfully', 'id' => $peerId]);
 
     } catch (\Exception $e) {
-      DB::rollback();
-      Log::error('Tariff store error: ' . $e->getMessage());
-      return response()->json(['status' => 'error', 'message' => 'Failed to save tariff: ' . $e->getMessage()], 500);
+      Log::error('Peer store error: ' . $e->getMessage());
+      return response()->json(['status' => 'error', 'message' => 'Failed to save peer: ' . $e->getMessage()], 500);
     }
   }
 
@@ -139,31 +117,18 @@ class PeerController extends Controller
   public function edit($id)
   {
     try {
-      // Get tariff data
-      $tariff = DB::table('tariff')->where('id', $id)->first();
+      // Get peer data
+      $peer = DB::table('peer')->where('id', $id)->first();
 
-      if (!$tariff) {
-        return response()->json(['status' => 'error', 'message' => 'Tariff not found'], 404);
+      if (!$peer) {
+        return response()->json(['status' => 'error', 'message' => 'Peer not found'], 404);
       }
 
-      // Get tariff details with operator prefix info
-      $details = DB::table('tariff_details as d')
-        ->leftJoin('op_prefix as p', 'd.ref_prefix', '=', 'p.prefix')
-        ->where('d.tariff_id', $id)
-        ->select('d.*', 'p.prefix', 'p.detail_name')
-        ->orderBy('d.id')
-        ->get();
-
-      $data = [
-        'tariff' => $tariff,
-        'details' => $details
-      ];
-
-      return response()->json($data);
+      return response()->json(['peer' => $peer]);
 
     } catch (\Exception $e) {
-      Log::error('Tariff edit error: ' . $e->getMessage());
-      return response()->json(['status' => 'error', 'message' => 'Failed to load tariff'], 500);
+      Log::error('Peer edit error: ' . $e->getMessage());
+      return response()->json(['status' => 'error', 'message' => 'Failed to load peer'], 500);
     }
   }
 
@@ -173,95 +138,58 @@ class PeerController extends Controller
       // Validate required fields
       $request->validate([
         'name' => 'required|string|max:255',
-        'pulse' => 'required|integer',
-        'details' => 'required|array',
+        'channel' => 'required|string|max:255',
       ]);
 
-      // Check if tariff exists
-      $tariff = DB::table('tariff')->where('id', $id)->first();
-      if (!$tariff) {
-        return response()->json(['status' => 'error', 'message' => 'Tariff not found'], 404);
+      // Check if peer exists
+      $peer = DB::table('peer')->where('id', $id)->first();
+      if (!$peer) {
+        return response()->json(['status' => 'error', 'message' => 'Peer not found'], 404);
       }
 
       // Check if name already exists (excluding current record)
-      $existingTariff = DB::table('tariff')
+      $existingPeer = DB::table('peer')
         ->where('name', $request->name)
         ->where('id', '!=', $id)
         ->first();
 
-      if ($existingTariff) {
-        return response()->json(['status' => 'error', 'message' => 'Tariff name already exists']);
+      if ($existingPeer) {
+        return response()->json(['status' => 'error', 'message' => 'Peer name already exists'], 422);
       }
 
-      // Start transaction
-      DB::beginTransaction();
-
-      // Get pulse name
-      $pulse = DB::table('pulse')->where('id', $request->pulse)->first();
-
-      // Update tariff
-      DB::table('tariff')->where('id', $id)->update([
+      // Update peer
+      DB::table('peer')->where('id', $id)->update([
         'name' => $request->name,
-        'pulse_local' => $pulse ? $pulse->name : '',
-        'pulse_local_id' => $request->pulse,
+        'channel' => $request->channel,
         'updated_by' => Auth::id(),
         'updated_at' => now(),
       ]);
 
-      // Delete existing tariff details
-      DB::table('tariff_details')->where('tariff_id', $id)->delete();
-
-      // Insert new tariff details
-      if ($request->has('details') && is_array($request->details)) {
-        foreach ($request->details as $detail) {
-          if (isset($detail['operator_prefix']) && isset($detail['rate'])) {
-            DB::table('tariff_details')->insert([
-              'tariff_id' => $id,
-              'ref_prefix' => $detail['operator_prefix'],
-              'rate' => $detail['rate'] ?? 0,
-              'is_active' => ($detail['status'] ?? 'Active') === 'Active' ? 1 : 0,
-            ]);
-          }
-        }
-      }
-
-      DB::commit();
-
-      return response()->json(['status' => 'updated', 'message' => 'Tariff updated successfully', 'id' => $id]);
+      return response()->json(['status' => 'updated', 'message' => 'Peer updated successfully', 'id' => $id]);
 
     } catch (\Exception $e) {
-      DB::rollback();
-      Log::error('Tariff update error: ' . $e->getMessage());
-      return response()->json(['status' => 'error', 'message' => 'Failed to update tariff: ' . $e->getMessage()], 500);
+      Log::error('Peer update error: ' . $e->getMessage());
+      return response()->json(['status' => 'error', 'message' => 'Failed to update peer: ' . $e->getMessage()], 500);
     }
   }
 
   public function destroy($id)
   {
     try {
-      // Check if tariff exists
-      $tariff = DB::table('tariff')->where('id', $id)->first();
-      if (!$tariff) {
-        return response()->json(['status' => 'error', 'message' => 'Tariff not found'], 404);
+      // Check if peer exists
+      $peer = DB::table('peer')->where('id', $id)->first();
+      if (!$peer) {
+        return response()->json(['status' => 'error', 'message' => 'Peer not found'], 404);
       }
 
-      // Start transaction
-      DB::beginTransaction();
+      // Delete peer
+      DB::table('peer')->where('id', $id)->delete();
 
-      // Delete tariff details first
-      DB::table('tariff_details')->where('tariff_id', $id)->delete();
-
-      // Delete tariff
-      DB::table('tariff')->where('id', $id)->delete();
-
-      DB::commit();
-
-      return response()->json(['status' => 'deleted', 'message' => 'Tariff deleted successfully']);
+      return response()->json(['status' => 'deleted', 'message' => 'Peer deleted successfully']);
 
     } catch (\Exception $e) {
-      DB::rollback();
-      Log::error('Tariff delete error: ' . $e->getMessage());
-      return response()->json(['status' => 'error', 'message' => 'Failed to delete tariff: ' . $e->getMessage()], 500);
+      Log::error('Peer delete error: ' . $e->getMessage());
+      return response()->json(['status' => 'error', 'message' => 'Failed to delete peer: ' . $e->getMessage()], 500);
     }
   }
 

@@ -4,26 +4,15 @@ namespace Modules\Users\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Trait\ActionButtonTrait;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
-use Modules\Smsconfig\App\Models\SenderId;
-use Modules\Smsconfig\App\Repositories\MaskRepositoryInterface;
-use Modules\Smsconfig\App\Repositories\RateRepositoryInterface;
-use Modules\Smsconfig\App\Repositories\SenderIdRepositoryInterface;
-use Modules\Users\App\Http\Requests\CreateUserRequest;
-use Modules\Users\App\Http\Requests\UpdateUserProfileRequest;
 use Modules\Users\App\Http\Requests\UpdateUserRequest;
 use Modules\Users\App\Repositories\UserGroupRepositoryInterface;
 use Modules\Users\App\Repositories\UserRepositoryInterface;
 use Modules\Users\App\Trait\DataTableTrait;
 use Yajra\DataTables\DataTables;
 use Modules\Users\App\Models\User;
-use Modules\Users\App\Models\UserGroup;
 use Modules\Smsconfig\App\Models\Rate;
 use Illuminate\Support\Facades\Hash;
 
@@ -47,11 +36,14 @@ class NumberController extends Controller
     $datas = $this->getClients();
     $ajaxUrl = route('number-list');
 
-
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
         ->addIndexColumn()
         ->editColumn('is_active', fn($row) => $row->is_active ? 'Active' : 'Inactive')
+        ->editColumn('is_booked', fn($row) => $row->is_booked != 'n' ? 'Booked' : 'Registered')
+        ->editColumn('amount', function($row) {
+          return DB::table('balance')->where('no', $row->no)->value('amount') ?? "";
+        })
         ->addColumn('action', fn($row) => $this->editButton('number-edit', $row->id))
         ->rawColumns(['status', 'action'])
         ->make();
@@ -69,23 +61,29 @@ class NumberController extends Controller
   
   private function getClients(array $filters = []): Collection
   {
-      $query = DB::table('number');
+      $query = DB::table('number')
+          ->join('client', 'number.client_id', '=', 'client.id') // Join with client table
+          ->select('number.*', 'client.*'); // Select all columns from both tables
 
       if (!empty($filters['search_info'])) {
           $search = $filters['search_info'];
           $query->where(function ($q) use ($search) {
-              $q->where('no', 'like', "%{$search}%")
-                ->orWhere('type', 'like', "%{$search}%")
-                ->orWhere('is_booked', 'like', "%{$search}%")
-                ->orWhere('channel', 'like', "%{$search}%")
-                ->orWhere('did_balance', 'like', "%{$search}%")
-                ->orWhere('amount', 'like', "%{$search}%")
-                ->orWhere('status', 'like', "%{$search}%");
+              $q->where('number.no', 'like', "%{$search}%")
+                ->orWhere('number.type', 'like', "%{$search}%")
+                ->orWhere('number.is_booked', 'like', "%{$search}%")
+                ->orWhere('number.channel', 'like', "%{$search}%")
+                ->orWhere('number.did_balance', 'like', "%{$search}%")
+                ->orWhere('number.amount', 'like', "%{$search}%")
+                ->orWhere('number.status', 'like', "%{$search}%")
+                // Optional: also search in client fields
+                ->orWhere('client.name', 'like', "%{$search}%")
+                ->orWhere('client.email', 'like', "%{$search}%");
           });
       }
 
-      return $query->orderBy('id', 'desc')->get();
+      return $query->orderBy('number.id', 'desc')->get();
   }
+
 
 private function getAllLongCodes(): array
 {

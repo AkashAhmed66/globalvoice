@@ -59,6 +59,12 @@
       "url": "users/mnp-list",
       "name": "MNP",
       "slug": "mnp-list"
+    },
+    {
+      "icon": "menu-icon tf-icons ri-user-shared-line",
+      "url": "users/peer-list",
+      "name": "Peer",
+      "slug": "peer-list"
     }
   ]
 }

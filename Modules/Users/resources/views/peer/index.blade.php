@@ -36,12 +36,12 @@
     const ajaxUrl = @json($ajaxUrl);
     const title = @json($title);
   </script>
-  @vite(['resources/js/tarif-list-table.js', 'resources/js/tarif-management.js'])
+  @vite(['resources/js/peer-list-table.js', 'resources/js/peer-management.js'])
 @endsection
 
 @section('content')
   <div class="card">
-    <div class="card-header pb-0">
+    <div class="card-header pb-0 d-flex justify-content-between align-items-center">
       <h5 class="card-title mb-0">Search Filter</h5>
     </div>
     <div class="card-datatable table-responsive">
@@ -56,7 +56,7 @@
       </table>
     </div>
 
-    @include('users::tarif.create')
+    @include('users::peer.create')
   </div>
 @endsection
 

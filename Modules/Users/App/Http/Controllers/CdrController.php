@@ -45,14 +45,50 @@ class CdrController extends Controller
   {
     $title = 'CDR List';
     $datas = $this->getClients();
-    $ajaxUrl = route('client-list');
+    $ajaxUrl = route('cdr-list');
+    $igws = DB::table('igw')->get();
+    $op_prefixes = DB::table('op_prefix')->get();
+    $isd_rate_charts = DB::table('isd_rate_chart')->get();
 
     // dd($datas);
 
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
         ->addIndexColumn()
-        ->addColumn('action', fn($row) => $this->editButton('cdr-edit', $row->id) . ' ' . $this->deleteButton('cdr-delete', $row->id))
+        ->editColumn('inout', fn($row) => $row->userfield == null || $row->userfield == '' ? 'IN' : 'OUT')
+        ->editColumn('locisd', fn($row) => $this->getLocIsd($row, $igws))
+        ->editColumn('obd', function ($row) use ($igws, $op_prefixes, $isd_rate_charts) {
+            if ($this->getLocIsd($row, $igws) === 'LOCAL') {
+                foreach ($op_prefixes as $op_prefix) {
+                    if ($row->final_prefix == $op_prefix->prefix) {
+                        return $op_prefix->detail_name;
+                    }
+                }
+                return '';
+            }else {
+                foreach ($isd_rate_charts as $rate_chart) {
+                    if ($row->final_prefix == $rate_chart->prefix) {
+                        return $rate_chart->name;
+                    }
+                }
+                return '';
+            }
+        })
+        ->editColumn('billsec', function ($row) {
+            if($row->userfield == null || $row->userfield == '') {
+                return $row->billsec;
+            } else {
+                return $row->pulse_billsec;
+            }
+        })
+        ->editColumn('deduction', function ($row) {
+            if($row->userfield == null || $row->userfield == '') {
+                return "";
+            } else {
+                return $row->deduction;
+            }
+        })
+        ->editColumn('action', fn($row) => $this->editButton('cdr-edit', $row->id) . ' ' . $this->deleteButton('cdr-delete', $row->id))
         ->rawColumns(['status', 'action'])
         ->make();
     }
@@ -63,23 +99,38 @@ class CdrController extends Controller
     return view('users::cdr.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups'));
   }
 
-  private function getClients(array $filters = []): Collection
+  private function getLocIsd($row, $igws)
   {
-      $query = DB::table('client');
-
-      if (!empty($filters['search_info'])) {
-          $search = $filters['search_info'];
-
-          $query->where(function ($q) use ($search) {
-              $q->where('name', 'like', "%{$search}%")
-                ->orWhere('status', 'like', "%{$search}%")
-                ->orWhere('contact_name', 'like', "%{$search}%")
-                ->orWhere('mail', 'like', "%{$search}%")
-                ->orWhere('contact_no', 'like', "%{$search}%");
-          });
+      if (empty($row->userfield)) {
+          foreach ($igws as $igw) {
+              if (str_starts_with($row->dst, $igw->prefix)) {
+                  return 'ISD';
+              }
+          }
+          return 'LOCAL';
       }
 
-      return $query->orderBy('id', 'desc')->get();
+      return $row->call_type;
+  }
+
+  private function getClients(array $filters = []): Collection
+  {
+      $query = DB::table('sbc_cdr');
+      $query->join('outbound', 'sbc_cdr.userfield', '=', 'outbound.id')
+            ->select('sbc_cdr.*', 'outbound.*');
+      // if (!empty($filters['search_info'])) {
+      //     $search = $filters['search_info'];
+
+      //     $query->where(function ($q) use ($search) {
+      //         $q->where('name', 'like', "%{$search}%")
+      //           ->orWhere('status', 'like', "%{$search}%")
+      //           ->orWhere('contact_name', 'like', "%{$search}%")
+      //           ->orWhere('mail', 'like', "%{$search}%")
+      //           ->orWhere('contact_no', 'like', "%{$search}%");
+      //     });
+      // }
+
+      return $query->orderBy('sbc_cdr.id', 'desc')->get();
   }
 
 
