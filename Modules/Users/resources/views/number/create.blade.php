@@ -90,11 +90,11 @@
         <div class="d-flex justify-content-between align-items-center">
           <label class="form-label fw-semibold mb-0">DID Balance</label>
           <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="add-range1" name="Credit Limit" value="1">
+            <input class="form-check-input" type="checkbox" id="add-range1" name="did_balance_enabled" value="1">
           </div>
         </div>
         <div id="rangeCount1" class="mt-2" style="display:none;">
-          <input type="number" class="form-control" name="range_count" placeholder="Credit Limit">
+          <input type="number" class="form-control" name="did_balance" placeholder="Credit Limit">
         </div>
       </div>
 
@@ -125,17 +125,7 @@
           <label for="call-limit">Call Limit</label>
         </div>
       </div>
-
-      <!-- ✅ NEW: Status Dropdown -->
-        <div class="form-floating form-floating-outline mb-4">
-          <select id="add-status" name="is_active" class="form-select">
-            <option value="1" selected>Active</option>
-            <option value="0">Inactive</option>
-          </select>
-          <label for="add-status">Status <span class="text-danger">*</span></label>
-        </div>
-<!-- ✅ END -->
-
+      
       <!-- Peer Dropdown (only for Peer method) -->
       <div id="peerSection" class="form-floating form-floating-outline mb-4">
         <select id="peer" name="peer" class="select2 form-select">
@@ -149,6 +139,17 @@
         <label for="peer">Peer</label>
          <label for="add-number">Peer <span class="text-danger">*</span></label>
       </div>
+
+      <!-- ✅ NEW: Status Dropdown -->
+        <div class="form-floating form-floating-outline mb-4">
+          <select id="add-status" name="is_active" class="form-select">
+            <option value="1" selected>Active</option>
+            <option value="0">Inactive</option>
+          </select>
+          <label for="add-status">Status <span class="text-danger">*</span></label>
+        </div>
+<!-- ✅ END -->
+
 
         <form action="{{ route('number-store') }}" method="POST">
           @csrf

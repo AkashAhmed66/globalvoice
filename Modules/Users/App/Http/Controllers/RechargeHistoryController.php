@@ -39,8 +39,6 @@ class RechargeHistoryController extends Controller
     if ($this->ajaxDatatable()) {
       return DataTables::of($datas)
         ->addIndexColumn()
-        ->editColumn('no', fn($row) => $row->no ?? $row->client_did)
-        ->addColumn('action', fn($row) => $this->editButton('tarif-edit', $row->id) . ' ' . $this->deleteButton('tarif-delete', $row->id))
         ->rawColumns(['status', 'action'])
         ->make();
     }
@@ -55,16 +53,7 @@ class RechargeHistoryController extends Controller
 
   private function getData(array $filters = []): Collection
   {
-      $query = DB::table('tariff');
-
-      if (!empty($filters['search_info'])) {
-          $search = $filters['search_info'];
-
-          $query->where(function ($q) use ($search) {
-              $q->where('name', 'like', "%{$search}%")
-                ->orWhere('pulse_local', 'like', "%{$search}%");
-          });
-      }
+      $query = DB::table('recharge_history');
 
       return $query->orderBy('id', 'desc')->get();
   }

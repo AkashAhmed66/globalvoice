@@ -4,26 +4,17 @@ namespace Modules\Users\App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Trait\ActionButtonTrait;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
-use Modules\Smsconfig\App\Models\SenderId;
-use Modules\Smsconfig\App\Repositories\MaskRepositoryInterface;
-use Modules\Smsconfig\App\Repositories\RateRepositoryInterface;
-use Modules\Smsconfig\App\Repositories\SenderIdRepositoryInterface;
-use Modules\Users\App\Http\Requests\CreateUserRequest;
-use Modules\Users\App\Http\Requests\UpdateUserProfileRequest;
 use Modules\Users\App\Http\Requests\UpdateUserRequest;
 use Modules\Users\App\Repositories\UserGroupRepositoryInterface;
 use Modules\Users\App\Repositories\UserRepositoryInterface;
 use Modules\Users\App\Trait\DataTableTrait;
 use Yajra\DataTables\DataTables;
 use Modules\Users\App\Models\User;
-use Modules\Users\App\Models\UserGroup;
 use Modules\Smsconfig\App\Models\Rate;
 use Illuminate\Support\Facades\Hash;
 
@@ -101,59 +92,140 @@ class BalanceController extends Controller
   }
 
   public function store(Request $request)
-{
-    try {
-        // Validate input
-        $validated = $request->validate([
-            'to' => 'required|in:Client,DID',
-            'amount' => 'required|numeric|min:0',
-            'client' => 'nullable|integer',
-            'did' => 'nullable|string',
-        ]);
+  {
+      try {
+          // Validate input
+          $validated = $request->validate([
+              'to' => 'required|in:Client,DID',
+              'amount' => 'required|numeric|min:0',
+              'client' => 'nullable|integer',
+              'did' => 'nullable|string',
+          ]);
 
-        $insertData = [
-            'amount' => $validated['amount'],
-            'updated_at' => now(),
-            'last_recharge_time' => now(),
-        ];
-
-        if ($validated['to'] === 'Client' && !empty($validated['client'])) {
-            $insertData['client_id'] = $validated['client'];
-        } elseif ($validated['to'] === 'DID' && !empty($validated['did'])) {
-            $insertData['no'] = $validated['did'];
-        } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Client or DID is required.',
+          if($validated['client']) {
+            if(DB::table('balance')->where('client_id', $validated['client'])->exists()) {
+              DB::table('balance')
+              ->where('client_id', $validated['client'])
+              ->update([
+                  'amount' => DB::raw('amount + ' . (float) $validated['amount']),
+                  'updated_at' => now(),
+                  'last_recharge_time' => now(),
+              ]);
+            } else {
+              DB::table('balance')->insert([
+                  'client_id' => $validated['client'],
+                  'amount' => $validated['amount'],
+                  'updated_at' => now(),
+                  'last_recharge_time' => now(),
+              ]);
+            }
+            DB::table('recharge_history')->insert([
+              'client_id' => $validated['client'],
+              'amount' => $validated['amount'],
+              'created_by' => Auth::id(),
+              'created_date' => now(),
             ]);
-        }
 
-        // Debug Log (to storage/logs/laravel.log)
-        Log::info('Inserting into balance table:', $insertData);
-
-        // Insert and get ID
-        $inserted = DB::table('balance')->insertGetId($insertData);
-
-        if ($inserted) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Balance added successfully',
             ]);
-        } else {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Insert failed — DB did not return an ID.',
+          } else {
+            // Handle the did case for the same way
+            if(DB::table('balance')->where('no', $validated['did'])->exists()) {
+              DB::table('balance')
+              ->where('no', $validated['did'])
+              ->update([
+                  'amount' => DB::raw('amount + ' . (float) $validated['amount']),
+                  'updated_at' => now(),
+                  'last_recharge_time' => now(),
+              ]);
+            } else {
+              DB::table('balance')->insert([
+                  'no' => $validated['did'],
+                  'amount' => $validated['amount'],
+                  'updated_at' => now(),
+                  'last_recharge_time' => now(),
+              ]);
+            }
+            
+            $client_id = DB::table('number')->where('no', $validated['did'])->value('client_id');
+            DB::table('recharge_history')->insert([
+            'client_id' => $client_id,
+            'no'  => $validated['did'],
+              'amount' => $validated['amount'],
+              'created_by' => Auth::id(),
+              'created_date' => now(),
             ]);
-        }
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Balance added successfully',
+            ]);
+          }
 
-    } catch (\Exception $e) {
-        Log::error('Balance store error: ' . $e->getMessage());
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Failed to add balance. ' . $e->getMessage(),
-        ], 500);
-    }
-}
+      } catch (\Exception $e) {
+          Log::error('Balance store error: ' . $e->getMessage());
+          return response()->json([
+              'status' => 'error',
+              'message' => 'Failed to add balance. ' . $e->getMessage(),
+          ], 500);
+      }
+  }
+
+  public function store_old(Request $request)
+  {
+      try {
+          // Validate input
+          $validated = $request->validate([
+              'to' => 'required|in:Client,DID',
+              'amount' => 'required|numeric|min:0',
+              'client' => 'nullable|integer',
+              'did' => 'nullable|string',
+          ]);
+
+          $insertData = [
+              'amount' => $validated['amount'],
+              'updated_at' => now(),
+              'last_recharge_time' => now(),
+          ];
+
+          if ($validated['to'] === 'Client' && !empty($validated['client'])) {
+              $insertData['client_id'] = $validated['client'];
+          } elseif ($validated['to'] === 'DID' && !empty($validated['did'])) {
+              $insertData['no'] = $validated['did'];
+          } else {
+              return response()->json([
+                  'status' => 'error',
+                  'message' => 'Client or DID is required.',
+              ]);
+          }
+
+          // Debug Log (to storage/logs/laravel.log)
+          Log::info('Inserting into balance table:', $insertData);
+
+          // Insert and get ID
+          $inserted = DB::table('balance')->insertGetId($insertData);
+
+          if ($inserted) {
+              return response()->json([
+                  'status' => 'success',
+                  'message' => 'Balance added successfully',
+              ]);
+          } else {
+              return response()->json([
+                  'status' => 'error',
+                  'message' => 'Insert failed — DB did not return an ID.',
+              ]);
+          }
+
+      } catch (\Exception $e) {
+          Log::error('Balance store error: ' . $e->getMessage());
+          return response()->json([
+              'status' => 'error',
+              'message' => 'Failed to add balance. ' . $e->getMessage(),
+          ], 500);
+      }
+  }
 
   public function edit($id)
   {

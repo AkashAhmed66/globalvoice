@@ -54,8 +54,9 @@ class NumberController extends Controller
     $users = DB::table('client')->select('id', 'name')->get();
     $longCodes = DB::table('number')->select('no')->get();
     $types = DB::table('number_type')->select('code', 'name')->get();
+    $peers = DB::table('peer')->select('id', 'name')->get();
 
-    return view('users::number.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'longCodes', 'users', 'types'));
+    return view('users::number.index', compact('title', 'tableHeaders', 'ajaxUrl', 'userGroups', 'longCodes', 'users', 'types', 'peers'));
   }
 
   
@@ -105,9 +106,9 @@ private function getAllLongCodes(): array
 
   public function store(Request $request)
   {
-
     $data = $request->toArray();
-    //dd($request->input('type'));
+    
+    // dd($data);
 
     // Get the readable type from the form (e.g. "Short Code")
     $rawType = trim($request->input('type'));
@@ -121,29 +122,38 @@ private function getAllLongCodes(): array
 
     $typeCode = $typeMap[$rawType] ?? null;
 
-    // 🚨 Stop if type is invalid
-    if (!$typeCode) {
-        return back()->withErrors(['type' => "Invalid type: $rawType"]);
+    $range_count = (int) $request->input('range_count', 0);
+
+    // dd($data, $range_count);
+
+    $number = $request->input('number', null);
+
+    if($number == null) {
+      return redirect()->back()->with('error', 'Number is required');
     }
 
-    DB::table('number')->insert([
-        "is_booked"    => $request->input('is_booked', 'y'), // default y
-        "client_id"    => $request->assign_to,
-        "type"         => $typeCode,
-        "channel"      => $request->input('channel',1),
-        "no"           => $request->input('number'),
-        "created_by"   => auth()->id(),
-        "created_date" => now(),
-        "action_date"  => now(),
-        "did_balance"  => $request->input('did_balance', 'off'),
-        "did_balance"  => $request->input('did_balance', 'on'),
-        "is_active"    => $request->input('is_active', 1)
-    ]);
+    foreach (range(0, $range_count - 1) as $index) {
+      DB::table('number')->insert([
+          "is_booked"    => $request->input('is_booked', 'n'), // default y
+          "no"           => $number + $index,
+          "type"         => $typeCode,
+          "channel"      => $request->input('call_limit', null),
+          "client_id"    => $request->assign_to,
+          "credit_limit" => $request->input('credit_limit', null),
+          "long_code"    => $request->input('long_code', null),
+          "created_by"   => auth()->id(),
+          "created_date" => now(),
+          "action_date"  => now(),
+          "did_balance"  => $request->input('did_balance_enabled', 'off') === '1' ? "on" : "off",
+          "sip_method"   => $request->sip_method,
+          "peer_id"      => $request->input('peer', null),
+          "sip_secret"   => $request->input('sip_secret', null),
+          "is_active"    => $request->input('is_active', 1)
+      ]);
+    }
 
     return redirect()->back()->with('success', 'Saved successfully');
   }
-
-  
   
   public function show($id)
   {
